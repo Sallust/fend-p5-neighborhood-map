@@ -71,6 +71,15 @@ var ViewModel = function() {
 		//console.log(self.currentCat())
 		self.currentCat ( this );
 	};
+	this.mapOptions = {
+		center: {lat: 38.031, lng: -78.486},
+    	zoom: 8,
+    	disableDefaultUI: true
+  	};
+	this.map = null;
+	self.initializeMap = function() {
+		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
+	}
 }
 
 ko.applyBindings(new ViewModel())

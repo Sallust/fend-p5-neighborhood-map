@@ -1,0 +1,27 @@
+{
+  "name": "fend-p5",
+  "version": "1.0.0",
+  "description": "Neighborhood Map Project-Udacity",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/github.com/sallust.git"
+  },
+  "keywords": [
+    "knockout",
+    "FEND",
+    "udacity"
+  ],
+  "author": "Daniyom Haile",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/github.com/sallust/issues"
+  },
+  "homepage": "https://github.com/github.com/sallust#readme",
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}

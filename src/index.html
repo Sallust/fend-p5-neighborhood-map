@@ -36,7 +36,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div id="list" class="col-md-4">
-                        <h3 data-bind="click: initializeMap">Nicknames!</h3>
+                        <h3 data-bind="click: setCurrentCat">Nicknames!</h3>
                         <ul data-bind="foreach: currentCat().nicknames">
                             <li data-bind="text: $data"></li>
                         </ul>
@@ -66,10 +66,19 @@
 
     <script src="js/lib/knockout-3.4.0.js"></script>
     <script src="js/app.js"></script>
-    <script>function googleSuccess() {}</script>
+    <script>function googleSuccess() {
+        ko.applyBindings(new ViewModel())
+    }</script>
+
     <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG3IGYJ-z-wlGRpLr6sBEF_Ls9z4ZNDig&callback=googleSuccess">
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG3IGYJ-z-wlGRpLr6sBEF_Ls9z4ZNDig&libraries=places&callback=googleSuccess">
       </script>
+
+
 
 </body>
 </html>
+
+<!--
+
+  -->

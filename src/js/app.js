@@ -39,7 +39,6 @@ var initialCats = [
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
 
 var MapFunc = {
-	map: null,
 	mapOptions: {
 		center: {lat: 38.031, lng: -78.486},
     	zoom: 8,
@@ -47,58 +46,41 @@ var MapFunc = {
   	},
 	callback: function(results, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-      	console.log(results);
+
+			//ViewModel.addData
+			MapFunc.initialData.push( new Place(results[0]));
+      		console.log(results);
     	}
 	},
 	init: function () {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
-		var service = new google.maps.places.PlacesService(this.map);
+		this.service = new google.maps.places.PlacesService(this.map);
 
-		service.textSearch({query: "The White House"}, this.callback)
+		this.getInitialData()
 
-
+		//this.service.textSearch({query: "The White House"}, this.callback)
 	},
-	test: function() {
-		console.log("I'm bear")
-		function callback(results, status) {
-			console.log(status);
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      console.log("I'm alive");
-    }
+	initialData: ko.observableArray([]),
+	getInitialData: function() {
+		var parent = this;
+		topPicks.forEach(function(placeName) {
+			parent.service.textSearch({query: placeName}, parent.callback)
+		})
+	}
+
   }
 
-		var service = new google.maps.places.PlacesService(this.map);
-		service.nearbySearch({quhery: "The White House"}, callback)
-
-	}
 
 
-}
 
+var Place = function(placeData) {
 
-var Place = function(placeName) {
-	console.log(placeName);
-	var self = this;
-	//var service;
-	var request = { query: placeName}
-
-	//service = new google.maps.places.PlacesService(map);
-	function callback(results, status) {
-		console.log(results)
-	}
-
-  	//service.textSearch(request, callback);
-  	//console.log(service)
-/*
-	var callback = function(results, status) {
-		console.log("I'm here")
-			if (status == google.maps.places.PlacesServiceStatus.OK) {
-				console.log(results)
-	  		}
-		}
-*/
-
-	//service.textSearch(request, callback);
+	console.log(placeData);
+	console.log(placeData.name);
+	console.log(placeData.formatted_address);
+	console.log(placeData.geometry.location.lat());
+	console.log(placeData.geometry.location.lng());
+	console.log(placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}));	//var self = this;
 
 }
 
@@ -140,23 +122,14 @@ var ViewModel = function() {
 		//console.log(self.currentCat())
 		self.currentCat ( this );
 	};
-	this.mapOptions = {
-		center: {lat: 38.031, lng: -78.486},
-    	zoom: 8,
-    	disableDefaultUI: true
-  	};
-	//this.map = null;
-	//self.initializeMap = function() {
+	self.make
+
 	self.placeList = ko.observableArray([]);
 
-	//this.service = new google.maps.places.PlacesService(self.map);
 /*
 	topPicks.forEach(function(placeName){
 		self.placeList.push( new Place(placeName))
 	}); */
-	function pleaseWork() {
-		console.log("Mana from heaven")
-	}
 	var request = {
         query: "The White House"
       };
@@ -168,9 +141,7 @@ var ViewModel = function() {
 			console.log("Please god")
 		})
 
-		//console.log("brought to you by insanity")
 
-	//pleaseWork();
 
 	this.callback = function(results, status) {
 		console.log(status);

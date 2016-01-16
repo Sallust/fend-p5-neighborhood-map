@@ -72,12 +72,18 @@ var MapFunc = {
 	},
 	createMarker: function(location) {
 		console.log("I'm a marker")
+
+		/*
 		var marker = new google.maps.Marker({
 			position: location,
 			map: MapFunc.map
-		});
-
-	}
+		});  */
+		return new google.maps.Marker({
+			position: location,
+			map: MapFunc.map
+		})
+	},
+	markers: []
 
 
 
@@ -94,6 +100,12 @@ var Place = function(placeData) {
 	this.lng = placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
 	this.photoUrl = placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65});
+	this.marker = new google.maps.Marker({
+			position: placeData.geometry.location,
+			map: MapFunc.map
+		})
+
+
 
 }
 
@@ -140,8 +152,29 @@ var ViewModel = function() {
 	})
 
 	self.currentMarkers = ko.computed ( function() {
+		//self.currentList.removeAll(self.filteredPlaces())
+		self.currentList().forEach(function(place) {
+			place.marker.setMap(null);
+			for (var i = 0; i < self.filteredPlaces().length; i++) {
+				if(self.filteredPlaces()[i].name == place.name) {
+					place.marker.setMap(MapFunc.map)
+					console.log("Am I real?")
+				}
+			};
+
+		})
+		self.currentList().forEach(function(place) {
+
+		})
+
+
+
 		self.filteredPlaces().forEach(function(place) {
-			MapFunc.createMarker(place.location)
+			if (!place.hasOwnProperty("marker")) {
+				//place.marker = MapFunc.createMarker(place.location)
+			}
+		//self.currentList
+
 			console.log("pre")
 		})
 	});

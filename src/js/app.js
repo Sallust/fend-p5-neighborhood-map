@@ -49,7 +49,10 @@ var MapFunc = {
 
 			//ViewModel.addData
 			MapFunc.initialData.push( new Place(results[0]));
-      		console.log(results);
+			console.log(MapFunc.initialData().length);
+			if (MapFunc.initialData().length >= 5) {
+				console.log("Run once")
+			}
     	}
 	},
 	init: function () {
@@ -66,7 +69,17 @@ var MapFunc = {
 		topPicks.forEach(function(placeName) {
 			parent.service.textSearch({query: placeName}, parent.callback)
 		})
+	},
+	createMarker: function(location) {
+		console.log("I'm a marker")
+		var marker = new google.maps.Marker({
+			position: location,
+			map: MapFunc.map
+		});
 	}
+
+
+
 
   }
 
@@ -74,13 +87,12 @@ var MapFunc = {
 
 
 var Place = function(placeData) {
-
-	console.log(placeData);
-	console.log(placeData.name);
-	console.log(placeData.formatted_address);
-	console.log(placeData.geometry.location.lat());
-	console.log(placeData.geometry.location.lng());
-	console.log(placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}));	//var self = this;
+	this.name = placeData.name;
+	this.address = placeData.formatted_address;
+	this.lat = placeData.geometry.location.lat();
+	this.lng = placeData.geometry.location.lng();
+	this.location = placeData.geometry.location;
+	this.photoUrl = placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65});
 
 }
 
@@ -100,10 +112,38 @@ var Cat = function(data) {
 }
 
 var ViewModel = function() {
-	MapFunc.init();
+
+
 
 	var self = this;
-	console.log("sup");
+	self.currentList = ko.computed(function() {
+		return MapFunc.initialData();
+	})
+
+
+	MapFunc.init();
+
+	self.currentFilter = ko.observable('');
+
+	self.filteredPlaces = ko.computed(function() {
+		var filter = self.currentFilter().toLowerCase();
+		if(!filter) {
+			return self.currentList()
+		} else {
+			return ko.utils.arrayFilter(self.currentList(), function(place) {
+				return place.name.toLowerCase.startsWith(filter);      //returns true when letters match
+			})
+		}
+	})
+
+	self.currentMarkers = ko.computed ( function() {
+		self.filteredPlaces().forEach(function(place) {
+			MapFunc.createMarker(place.location)
+			console.log("pre")
+		})
+	});
+
+
 
 	self.catList = ko.observableArray([]);
 
@@ -130,11 +170,6 @@ var ViewModel = function() {
 	topPicks.forEach(function(placeName){
 		self.placeList.push( new Place(placeName))
 	}); */
-	var request = {
-        query: "The White House"
-      };
-      //console.log(self.service.textSearch)
-
 
 	topPicks.forEach(function(placeName) {
 		//self.textSearch({query:placeName}, function() {
@@ -143,9 +178,7 @@ var ViewModel = function() {
 
 
 
-	this.callback = function(results, status) {
-		console.log(status);
-	}
+
 	//}
 }
 //This now is called by google map success callback

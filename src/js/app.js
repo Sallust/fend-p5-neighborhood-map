@@ -76,6 +76,7 @@ var MapFunc = {
 			position: location,
 			map: MapFunc.map
 		});
+
 	}
 
 
@@ -131,7 +132,9 @@ var ViewModel = function() {
 			return self.currentList()
 		} else {
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
-				return place.name.toLowerCase.startsWith(filter);      //returns true when letters match
+				console.log(place.name.toLowerCase().startsWith(filter))
+				console.log(self.filteredPlaces());
+				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
 			})
 		}
 	})

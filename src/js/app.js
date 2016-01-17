@@ -46,13 +46,9 @@ var MapFunc = {
   	},
 	callback: function(results, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-
-			//ViewModel.addData
 			MapFunc.initialData.push( new Place(results[0]));
-			console.log(MapFunc.initialData().length);
-			if (MapFunc.initialData().length >= 5) {
-				console.log("Run once")
-			}
+			MapFunc.getGoogleDetails(results[0].place_id);
+
     	}
 	},
 	init: function () {
@@ -70,9 +66,24 @@ var MapFunc = {
 			parent.service.textSearch({query: placeName}, parent.callback)
 		})
 	},
+	getGoogleDetails: function(placeID) {
+		MapFunc.service.getDetails({placeId: placeID}, MapFunc.googleDetailsCallback );
+	},
 	setInfoWindow: function(marker) {
 		this.infoWindow.setContent(marker.infoWindowContent);
-		this.infoWindow.open(MapFunc.map, marker);
+		this.infoWindow.open(this.map, marker);
+	},
+	googleDetailsCallback: function(results, status){
+		if (status == google.maps.places.PlacesServiceStatus.OK) {
+    		console.log(results)
+    		MapFunc.initialData().forEach(function(place) {
+    			if (place.placeID == results.place_id) {
+    				place = fancierPlace(place, results);
+    				console.log("I'm fancy and I know it")
+    			}
+    		})
+
+  		}
 	}
 
   }
@@ -81,6 +92,9 @@ var MapFunc = {
 
 
 var Place = function(placeData) {
+	//console.log(placeData.types);
+	//console.log(placeData);
+	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
 	this.lat = placeData.geometry.location.lat();
@@ -92,7 +106,6 @@ var Place = function(placeData) {
 			map: MapFunc.map,
 			animation: google.maps.Animation.DROP
 		})
-	this.marker.infoWindowContent = "<h2>" + this.name + "</h2>" //stored as property of marker for easy referenec at call time
 
 	//ko.computed(function() {
 	//	return "<h2>" + this.name + "</h2>"
@@ -101,6 +114,19 @@ var Place = function(placeData) {
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
 	})
+}
+
+var fancierPlace = function (place, detailsData) {
+	place.reviewsArray = detailsData.reviews;
+	place.phone = detailsData.formatted_phone_number;
+	place.website = detailsData.website || "No Website Given";
+	place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
+
+
+
+	return place
+
+
 }
 
 var Cat = function(data) {
@@ -169,7 +195,6 @@ var ViewModel = function() {
 			marker.setAnimation(null);
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
-
 	}
 
 	self.placeList = ko.observableArray([]);

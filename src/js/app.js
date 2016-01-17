@@ -58,8 +58,9 @@ var MapFunc = {
 	init: function () {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
+		this.infoWindow = new google.maps.InfoWindow();
 
-		this.getInitialData()
+		this.getInitialData();
 
 	},
 	initialData: ko.observableArray([]),
@@ -69,6 +70,7 @@ var MapFunc = {
 			parent.service.textSearch({query: placeName}, parent.callback)
 		})
 	}
+
   }
 
 
@@ -85,9 +87,16 @@ var Place = function(placeData) {
 			position: placeData.geometry.location,
 			map: MapFunc.map
 		})
+	this.marker.infoWindowContent = "<h2>" + this.name + "</h2>" //stored as property of marker for easy referenec at call time
 
+	//ko.computed(function() {
+	//	return "<h2>" + this.name + "</h2>"
+	//},this);
 
-
+	google.maps.event.addListener(this.marker, 'click', function(e) {
+		MapFunc.infoWindow.setContent(this.infoWindowContent);   //this.infoWindowContent
+		MapFunc.infoWindow.open(MapFunc.map, this);
+	})
 }
 
 var Cat = function(data) {

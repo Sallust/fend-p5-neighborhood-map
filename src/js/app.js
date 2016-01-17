@@ -69,6 +69,10 @@ var MapFunc = {
 		topPicks.forEach(function(placeName) {
 			parent.service.textSearch({query: placeName}, parent.callback)
 		})
+	},
+	setInfoWindow: function(marker) {
+		this.infoWindow.setContent(marker.infoWindowContent);
+		this.infoWindow.open(MapFunc.map, marker);
 	}
 
   }
@@ -85,7 +89,8 @@ var Place = function(placeData) {
 	this.photoUrl = placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65});
 	this.marker = new google.maps.Marker({
 			position: placeData.geometry.location,
-			map: MapFunc.map
+			map: MapFunc.map,
+			animation: google.maps.Animation.DROP
 		})
 	this.marker.infoWindowContent = "<h2>" + this.name + "</h2>" //stored as property of marker for easy referenec at call time
 
@@ -94,8 +99,7 @@ var Place = function(placeData) {
 	//},this);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
-		MapFunc.infoWindow.setContent(this.infoWindowContent);   //this.infoWindowContent
-		MapFunc.infoWindow.open(MapFunc.map, this);
+		MapFunc.setInfoWindow( this );
 	})
 }
 
@@ -158,6 +162,15 @@ var ViewModel = function() {
 		//console.log(self.currentCat())
 		self.currentCat ( this );
 	};
+	self.setFocus = function() {
+		var marker = this.marker;
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function(){
+			marker.setAnimation(null);
+		}, 1400);
+		MapFunc.setInfoWindow(marker);
+
+	}
 
 	self.placeList = ko.observableArray([]);
 

@@ -44,7 +44,7 @@
                 </li>
                 <!--ko foreach: filteredPlaces  -->
                     <li>
-                        <a data-bind="text: name" href="#"></a>
+                        <a data-bind="text: name, click:$parent.setFocus" href="#"></a>
                     </li>
                 <!-- /ko -->
             </ul>

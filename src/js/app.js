@@ -61,7 +61,6 @@ var MapFunc = {
 
 		this.getInitialData()
 
-		//this.service.textSearch({query: "The White House"}, this.callback)
 	},
 	initialData: ko.observableArray([]),
 	getInitialData: function() {
@@ -69,25 +68,7 @@ var MapFunc = {
 		topPicks.forEach(function(placeName) {
 			parent.service.textSearch({query: placeName}, parent.callback)
 		})
-	},
-	createMarker: function(location) {
-		console.log("I'm a marker")
-
-		/*
-		var marker = new google.maps.Marker({
-			position: location,
-			map: MapFunc.map
-		});  */
-		return new google.maps.Marker({
-			position: location,
-			map: MapFunc.map
-		})
-	},
-	markers: []
-
-
-
-
+	}
   }
 
 
@@ -120,19 +101,14 @@ var Cat = function(data) {
 	this.catLevel = ko.computed(function() {
 		return this.catLevelArray[Math.floor(this.clickCount()/10)];
 	},this)
-
 	this.nicknames = ko.observable(data.nicknames);
 }
 
 var ViewModel = function() {
-
-
-
 	var self = this;
 	self.currentList = ko.computed(function() {
 		return MapFunc.initialData();
 	})
-
 
 	MapFunc.init();
 
@@ -144,46 +120,21 @@ var ViewModel = function() {
 			return self.currentList()
 		} else {
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
-				console.log(place.name.toLowerCase().startsWith(filter))
-				console.log(self.filteredPlaces());
 				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
 			})
 		}
 	})
 
 	self.currentMarkers = ko.computed ( function() {
-		//self.currentList.removeAll(self.filteredPlaces())
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
-			for (var i = 0; i < self.filteredPlaces().length; i++) {
-				if(self.filteredPlaces()[i].name == place.name) {
-					place.marker.setMap(MapFunc.map)
-					console.log("Am I real?")
-				}
-			};
-
 		})
-		self.currentList().forEach(function(place) {
-
-		})
-
-
-
 		self.filteredPlaces().forEach(function(place) {
-			if (!place.hasOwnProperty("marker")) {
-				//place.marker = MapFunc.createMarker(place.location)
-			}
-		//self.currentList
-
-			console.log("pre")
+			place.marker.setMap(MapFunc.map)
 		})
 	});
 
-
-
 	self.catList = ko.observableArray([]);
-
-
 
 	initialCats.forEach(function(catItem){
 		self.catList.push( new Cat(catItem) );
@@ -198,24 +149,13 @@ var ViewModel = function() {
 		//console.log(self.currentCat())
 		self.currentCat ( this );
 	};
-	self.make
 
 	self.placeList = ko.observableArray([]);
 
-/*
-	topPicks.forEach(function(placeName){
-		self.placeList.push( new Place(placeName))
-	}); */
-
 	topPicks.forEach(function(placeName) {
 		//self.textSearch({query:placeName}, function() {
-			console.log("Please god")
 		})
 
-
-
-
-	//}
 }
 //This now is called by google map success callback
 //ko.applyBindings(new ViewModel())

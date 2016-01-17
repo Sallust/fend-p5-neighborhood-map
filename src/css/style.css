@@ -11,5 +11,7 @@ body {
 }
 
 .container-fluid {
-	height: 500px;
+	height: 900px;
+	height: 100vh;
+
 }

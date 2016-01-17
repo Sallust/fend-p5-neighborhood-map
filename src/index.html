@@ -42,44 +42,21 @@
                         List of Attractions
                     </a>
                 </li>
-                <li>
-                    <a href="#">Dashboard</a>
-                </li>
-                <li>
-                    <a href="#">Overview</a>
-                </li>
-
+                <!--ko foreach: filteredPlaces  -->
+                    <li>
+                        <a data-bind="text: name" href="#"></a>
+                    </li>
+                <!-- /ko -->
             </ul>
-
-
-
 
         </div>
 
-            <div class="container-fluid">
-                <div class="row">
-                    <div id="list" class="col-md-4">
-                        <h3 data-bind="click: setCurrentCat">Nicknames!</h3>
-                        <ul data-bind="foreach: currentCat().nicknames">
-                            <li data-bind="text: $data"></li>
-                        </ul>
-                    </div>
-                    <div id="map" class="col-md-8">I will grow up to be a map
-                    </div>
 
-                </div>
+        <div class="container-fluid">
+            <div id="map">I will grow up to be a map
             </div>
-            <ul id="cat-list" data-bind="foreach: catList">
-                <li data-bind="text: name, click: $parent.setCurrentCat"></li>
-            </ul>
-            <div id="cat"data-bind="with: currentCat">
 
-                <h2  id="cat-name"data-bind="text: name"></h2>
-                <h3 data-bind="text: catLevel"></h3>
-                <div id="cat-count"data-bind="text: clickCount"></div>
-
-
-            </div>
+        </div>
 
     </div>
 
@@ -101,5 +78,24 @@
 </html>
 
 <!--
+<div class="row">
+                <div id="list" class="col-md-4">
+                    <h3 data-bind="click: setCurrentCat">Nicknames!</h3>
+                    <ul data-bind="foreach: currentCat().nicknames">
+                        <li data-bind="text: $data"></li>
+                    </ul>
+                </div>
+
+                <ul id="cat-list" data-bind="foreach: catList">
+                <li data-bind="text: name, click: $parent.setCurrentCat"></li>
+            </ul>
+            <div id="cat"data-bind="with: currentCat">
+
+                <h2  id="cat-name"data-bind="text: name"></h2>
+                <h3 data-bind="text: catLevel"></h3>
+                <div id="cat-count"data-bind="text: clickCount"></div>
+
+
+            </div>
 
   -->

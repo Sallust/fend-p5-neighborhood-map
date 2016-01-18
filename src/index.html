@@ -45,6 +45,9 @@
                 <!--ko foreach: filteredPlaces  -->
                     <li>
                         <a data-bind="text: name, click:$parent.setFocus" href="#"></a>
+                        <img src="" alt="place image" data-bind="attr: {src: photoUrl}">
+                        <p data-bind="text: address"> </p>
+                        <a data-bind="text: wikiURL"></a>
                     </li>
                 <!-- /ko -->
             </ul>

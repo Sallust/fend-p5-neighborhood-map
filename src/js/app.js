@@ -64,6 +64,7 @@ var MapFunc = {
 		var parent = this;
 		topPicks.forEach(function(placeName) {
 			parent.service.textSearch({query: placeName}, parent.callback)
+
 		})
 	},
 	getGoogleDetails: function(placeID) {
@@ -75,11 +76,9 @@ var MapFunc = {
 	},
 	googleDetailsCallback: function(results, status){
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
-    		console.log(results)
     		MapFunc.initialData().forEach(function(place) {
     			if (place.placeID == results.place_id) {
     				place = fancierPlace(place, results);
-    				console.log("I'm fancy and I know it")
     			}
     		})
 
@@ -106,6 +105,20 @@ var Place = function(placeData) {
 			map: MapFunc.map,
 			animation: google.maps.Animation.DROP
 		})
+	this.wikiURL = ko.observable('');
+
+	var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + this.name +'&format=json'
+
+	var self = this;
+	$.ajax({
+			url: wikiAPI,
+			dataType: "jsonp",
+			success: function(data) {
+				self.wikiURL(data[3][0]);
+			}
+		})
+
+
 
 	//ko.computed(function() {
 	//	return "<h2>" + this.name + "</h2>"
@@ -121,12 +134,7 @@ var fancierPlace = function (place, detailsData) {
 	place.phone = detailsData.formatted_phone_number;
 	place.website = detailsData.website || "No Website Given";
 	place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
-
-
-
 	return place
-
-
 }
 
 var Cat = function(data) {
@@ -143,6 +151,12 @@ var Cat = function(data) {
 	this.nicknames = ko.observable(data.nicknames);
 }
 
+var Model = {
+	init: function() {
+		console.log("I'm here")
+	}
+}
+
 var ViewModel = function() {
 	var self = this;
 	self.currentList = ko.computed(function() {
@@ -150,6 +164,32 @@ var ViewModel = function() {
 	})
 
 	MapFunc.init();
+	Model.init();
+
+	for (var i = 0; i < self.currentList().length; i++) {
+		console.log(self.currentList()[i].name)
+	};
+
+
+
+
+	self.currentList().forEach(function(place) {
+		//place.wikiURL = ko.observable('');
+		console.log(place.name)
+		/*
+		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json'
+		$.ajax({
+			url: wikiAPI,
+			dataType: "jsonp",
+			success: function(data) {
+				console.log("I'm heeere")
+				console.log(data)
+				console.log(data[3][0]);
+				//place.wikiURL(data[3][0]);
+			}
+
+		}) */
+	})
 
 	self.currentFilter = ko.observable('');
 
@@ -164,6 +204,10 @@ var ViewModel = function() {
 		}
 	})
 
+	self.filteredPlaces().forEach(function(place) {
+		console.log(place.name);
+	})
+
 	self.currentMarkers = ko.computed ( function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
@@ -174,6 +218,7 @@ var ViewModel = function() {
 	});
 
 	self.catList = ko.observableArray([]);
+	console.log("I'm here")
 
 	initialCats.forEach(function(catItem){
 		self.catList.push( new Cat(catItem) );
@@ -202,6 +247,7 @@ var ViewModel = function() {
 	topPicks.forEach(function(placeName) {
 		//self.textSearch({query:placeName}, function() {
 		})
+
 
 }
 //This now is called by google map success callback

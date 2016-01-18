@@ -41,14 +41,17 @@ var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "
 
 var dynamicModel = {
 	arrayOfArrays: ko.observableArray(),
+	simpleArrayOfArrays: [],
 	resultsLimit: 3,
 	init: function() {
 		console.log("I'm a dynamic Model")
 		var parent = this;
+		parent.simpleArrayOfArrays.push(MapFunc.initialData);
 
 		categories.forEach(function(category){
 			var categoryName = category + "PlaceArray"
 			parent[categoryName] = ko.observableArray();
+			vm.arrayOfArrays.push(parent[categoryName])
 
 			//var categoryResults = ko.observableArray([]);
 			//parent.arrayOfArrays.push(categoryArray()); //this is wrong
@@ -68,7 +71,7 @@ var dynamicModel = {
 
 		})
 
-	},
+	}
 
 
 
@@ -215,11 +218,17 @@ var Cat = function(data) {
 
 var ViewModel = function() {
 	var self = this;
-	MapFunc.init();
-	dynamicModel.init();
+	self.arrayOfArrays = []
+	self.arrayOfArrays.push(MapFunc.initialData)
+
+	//MapFunc.init();
+	//dynamicModel.init();
+
+
+
 
 	self.currentList = ko.computed(function() {
-		return MapFunc.initialData();
+		return self.arrayOfArrays[0]();
 	})
 
 
@@ -238,7 +247,7 @@ var ViewModel = function() {
 		}
 	})
 	self.setCurrentList = function() {
-
+		self.currentList ( this );
 	}
 	self.currentMarkers = ko.computed ( function() {
 		self.currentList().forEach(function(place) {
@@ -260,6 +269,11 @@ var ViewModel = function() {
 
 
 }
+
+var vm = new ViewModel();
+ko.applyBindings(vm);
+
+
 
 /*
 	var self = this;

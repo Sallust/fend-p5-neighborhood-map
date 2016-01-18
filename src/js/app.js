@@ -45,8 +45,12 @@ var dynamicModel = {
 	init: function() {
 		console.log("I'm a dynamic Model")
 		var parent = this;
+
 		categories.forEach(function(category){
-			var categoryResults = ko.observableArray([]);
+			var categoryName = category + "PlaceArray"
+			parent[categoryName] = ko.observableArray();
+
+			//var categoryResults = ko.observableArray([]);
 			//parent.arrayOfArrays.push(categoryArray()); //this is wrong
 
 			var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + parent.resultsLimit;
@@ -54,7 +58,8 @@ var dynamicModel = {
 				for (var i = 0; i < data.response.groups[0].items.length; i++) {
 					console.log(data.response.groups[0].items[i].venue.name)
 					var resultName = data.response.groups[0].items[i].venue.name;
-					categoryResults.push(resultName);
+					//categoryResults.push(resultName);
+					MapFunc.getInitialData(resultName,parent[categoryName])
 					//send name to google text Search here
 				};
 				//console.log(data.response.groups[0].items[0].venue.name)
@@ -62,6 +67,7 @@ var dynamicModel = {
 
 
 		})
+
 	},
 
 
@@ -89,12 +95,16 @@ var MapFunc = {
 		this.infoWindow = new google.maps.InfoWindow();
 
 		//this.initialData = ko.observableArray();
+		var parent = this;
+		topPicks.forEach(function(placeName){
+			parent.getInitialData(placeName, parent.initialData);
+		})
 
-		this.getInitialData(topPicks,this.initialData);
+		//this.getInitialData(topPicks,this.initialData);
 
 	},
 
-	getInitialData: function(namesArray, placeDataArray) {
+	getInitialData: function(placeName, placeDataArray) {
 		function callback (results, status) {
 			console.log(placeDataArray);
 			console.log(MapFunc.initialData())
@@ -104,10 +114,10 @@ var MapFunc = {
     		}
     	}
 
-		var parent = this;
-		namesArray.forEach(function(placeName) {
-			parent.service.textSearch({query: placeName}, callback)
-		})
+		//var parent = this;
+		//namesArray.forEach(function(placeName) {
+			this.service.textSearch({query: placeName}, callback)
+		//})
 
 	},
 	getGoogleDetails: function(placeID) {
@@ -149,7 +159,7 @@ var Place = function(placeData) {
 	this.photoUrl = placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65});
 	this.marker = new google.maps.Marker({
 			position: placeData.geometry.location,
-			map: MapFunc.map,
+			//map: MapFunc.map,
 			animation: google.maps.Animation.DROP
 		})
 	this.wikiURL = ko.observable('');
@@ -230,6 +240,24 @@ var ViewModel = function() {
 	self.setCurrentList = function() {
 
 	}
+	self.currentMarkers = ko.computed ( function() {
+		self.currentList().forEach(function(place) {
+			place.marker.setMap(null);
+		})
+		self.filteredPlaces().forEach(function(place) {
+			place.marker.setMap(MapFunc.map)
+		})
+	});
+
+	self.setFocus = function() {
+		var marker = this.marker;
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function(){
+			marker.setAnimation(null);
+		}, 1400);
+		MapFunc.setInfoWindow(marker);
+	}
+
 
 }
 

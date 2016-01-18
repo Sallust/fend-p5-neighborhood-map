@@ -35,8 +35,38 @@ var initialCats = [
 		nicknames: ["Present!", "R U Still here?", "Hair for days", "The Cat"]
 	}
 ]
+var categories = ["food","drinks"]
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
+
+var dynamicModel = {
+	arrayOfArrays: ko.observableArray(),
+	resultsLimit: 3,
+	init: function() {
+		console.log("I'm a dynamic Model")
+		var parent = this;
+		categories.forEach(function(category){
+			var categoryResults = ko.observableArray([]);
+			//parent.arrayOfArrays.push(categoryArray()); //this is wrong
+
+			var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + parent.resultsLimit;
+			$.getJSON(foursquareAPI, function(data) {
+				for (var i = 0; i < data.response.groups[0].items.length; i++) {
+					console.log(data.response.groups[0].items[i].venue.name)
+					var resultName = data.response.groups[0].items[i].venue.name;
+					categoryResults.push(resultName);
+					//send name to google text Search here
+				};
+				//console.log(data.response.groups[0].items[0].venue.name)
+			})
+
+
+		})
+	}
+
+
+
+}
 
 var MapFunc = {
 	mapOptions: {
@@ -84,6 +114,9 @@ var MapFunc = {
     		})
 
   		}
+	},
+	getGoogleData: function() {
+
 	}
 
   }
@@ -171,6 +204,7 @@ var ViewModel = function() {
 	})
 
 	MapFunc.init();
+	dynamicModel.init();
 
 
 

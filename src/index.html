@@ -22,15 +22,16 @@
                   <a class="navbar-brand" href="#">Neighborhood Map Project</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
-                <form class="navbar-form navbar-right">
+                <div class="navbar-form navbar-right">
                     <div class="form-group">
                         <input type="text" placeholder="Email" class="form-control" data-bind="textInput: currentFilter">
                     </div>
-                    <div class="form-group">
-                        <input type="password" placeholder="Password" class="form-control">
+                    <div data-bind="foreach: listOfLists" class="form-group">
+                        <button data-bind="click: $parent.setCurrentList"class="btn btn-success">Sign in</button>
                     </div>
-                    <button type="submit" class="btn btn-success">Sign in</button>
-                </form>
+
+
+                </div>
             </div>
         </div><!--/.navbar-collapse -->
     </nav>
@@ -46,8 +47,14 @@
                     <li>
                         <a data-bind="text: name, click:$parent.setFocus" href="#"></a>
                         <img src="" alt="place image" data-bind="attr: {src: photoUrl}">
-                        <p data-bind="text: address"> </p>
+                        <p data-bind="text: phone"> </p>
                         <a data-bind="text: wikiURL"></a>
+                        <p>Reviews</p>
+
+                        <ul data-bind="foreach: reviewsArray">
+                            <li data-bind="text: text"></li>
+                        </ul>
+
                     </li>
                 <!-- /ko -->
             </ul>

@@ -64,8 +64,8 @@ var MapFunc = {
 		var parent = this;
 		topPicks.forEach(function(placeName) {
 			parent.service.textSearch({query: placeName}, parent.callback)
-
 		})
+
 	},
 	getGoogleDetails: function(placeID) {
 		MapFunc.service.getDetails({placeId: placeID}, MapFunc.googleDetailsCallback );
@@ -78,7 +78,8 @@ var MapFunc = {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
     		MapFunc.initialData().forEach(function(place) {
     			if (place.placeID == results.place_id) {
-    				place = fancierPlace(place, results);
+    				//place.phone = results.formatted_phone_number;
+    				fancierPlace(place, results);
     			}
     		})
 
@@ -117,6 +118,10 @@ var Place = function(placeData) {
 				self.wikiURL(data[3][0]);
 			}
 		})
+	this.reviewsArray = ko.observableArray([]);
+	this.phone = ko.observable('');
+	this.website = ko.observable('');
+
 
 
 
@@ -130,11 +135,11 @@ var Place = function(placeData) {
 }
 
 var fancierPlace = function (place, detailsData) {
-	place.reviewsArray = detailsData.reviews;
-	place.phone = detailsData.formatted_phone_number;
-	place.website = detailsData.website || "No Website Given";
-	place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
-	return place
+	place.reviewsArray(detailsData.reviews);
+	//console.log(detailsData.reviews)
+	place.phone(detailsData.formatted_phone_number)
+	place.website(detailsData.website)// =  || "No Website Given";
+	//place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
 }
 
 var Cat = function(data) {
@@ -151,45 +156,23 @@ var Cat = function(data) {
 	this.nicknames = ko.observable(data.nicknames);
 }
 
-var Model = {
-	init: function() {
-		console.log("I'm here")
-	}
-}
 
 var ViewModel = function() {
 	var self = this;
+
+	self.listOfLists = ko.observableArray();
+	self.listOfLists.push(MapFunc.initialData())
+
+
+
 	self.currentList = ko.computed(function() {
-		return MapFunc.initialData();
+		console.log(MapFunc.initialData())
+		return self.listOfLists()[0];
 	})
 
 	MapFunc.init();
-	Model.init();
-
-	for (var i = 0; i < self.currentList().length; i++) {
-		console.log(self.currentList()[i].name)
-	};
 
 
-
-
-	self.currentList().forEach(function(place) {
-		//place.wikiURL = ko.observable('');
-		console.log(place.name)
-		/*
-		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json'
-		$.ajax({
-			url: wikiAPI,
-			dataType: "jsonp",
-			success: function(data) {
-				console.log("I'm heeere")
-				console.log(data)
-				console.log(data[3][0]);
-				//place.wikiURL(data[3][0]);
-			}
-
-		}) */
-	})
 
 	self.currentFilter = ko.observable('');
 
@@ -204,9 +187,6 @@ var ViewModel = function() {
 		}
 	})
 
-	self.filteredPlaces().forEach(function(place) {
-		console.log(place.name);
-	})
 
 	self.currentMarkers = ko.computed ( function() {
 		self.currentList().forEach(function(place) {
@@ -240,6 +220,9 @@ var ViewModel = function() {
 			marker.setAnimation(null);
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
+	}
+	self.setCurrentList = function() {
+
 	}
 
 	self.placeList = ko.observableArray([]);

@@ -62,7 +62,8 @@ var dynamicModel = {
 
 
 		})
-	}
+	},
+
 
 
 
@@ -81,19 +82,31 @@ var MapFunc = {
 
     	}
 	},
+	initialData: ko.observableArray(),
 	init: function () {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
 
-		this.getInitialData();
+		//this.initialData = ko.observableArray();
+
+		this.getInitialData(topPicks,this.initialData);
 
 	},
-	initialData: ko.observableArray([]),
-	getInitialData: function() {
+
+	getInitialData: function(namesArray, placeDataArray) {
+		function callback (results, status) {
+			console.log(placeDataArray);
+			console.log(MapFunc.initialData())
+		if (status == google.maps.places.PlacesServiceStatus.OK) {
+			placeDataArray.push( new Place(results[0]));
+			MapFunc.getGoogleDetails(results[0].place_id);
+    		}
+    	}
+
 		var parent = this;
-		topPicks.forEach(function(placeName) {
-			parent.service.textSearch({query: placeName}, parent.callback)
+		namesArray.forEach(function(placeName) {
+			parent.service.textSearch({query: placeName}, callback)
 		})
 
 	},
@@ -192,16 +205,50 @@ var Cat = function(data) {
 
 var ViewModel = function() {
 	var self = this;
+	MapFunc.init();
+	dynamicModel.init();
+
+	self.currentList = ko.computed(function() {
+		return MapFunc.initialData();
+	})
+
+
+	//ko.observableArray(MapFunc.initialData());
+
+	self.currentFilter = ko.observable('');
+
+	self.filteredPlaces = ko.computed(function() {
+		var filter = self.currentFilter().toLowerCase();
+		if(!filter) {
+			return self.currentList()
+		} else {
+			return ko.utils.arrayFilter(self.currentList(), function(place) {
+				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
+			})
+		}
+	})
+	self.setCurrentList = function() {
+
+	}
+
+}
+
+/*
+	var self = this;
 
 	self.listOfLists = ko.observableArray();
 	self.listOfLists.push(MapFunc.initialData())
 
+	console.log(MapFunc.initialData());
+
+	self.currentList = ko.observableArray();
+	self.currentList(MapFunc.initialData());
 
 
-	self.currentList = ko.computed(function() {
-		console.log(MapFunc.initialData())
-		return self.listOfLists()[0];
-	})
+	//self.currentList = ko.computed(function() {
+	//	console.log(MapFunc.initialData())
+	//	return MapFunc.initialData();//self.listOfLists()[0];
+	//})
 
 	MapFunc.init();
 	dynamicModel.init();
@@ -271,3 +318,5 @@ var ViewModel = function() {
 //ko.applyBindings(new ViewModel())
 
 //[Math.floor(this.clickCount / 10)
+
+*/

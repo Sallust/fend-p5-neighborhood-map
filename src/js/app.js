@@ -42,7 +42,7 @@ var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "
 var dynamicModel = {
 	arrayOfArrays: ko.observableArray(),
 	simpleArrayOfArrays: [],
-	resultsLimit: 3,
+	resultsLimit: 10,
 	init: function() {
 		console.log("I'm a dynamic Model")
 		var parent = this;
@@ -102,15 +102,10 @@ var MapFunc = {
 		topPicks.forEach(function(placeName){
 			parent.getInitialData(placeName, parent.initialData);
 		})
-
-		//this.getInitialData(topPicks,this.initialData);
-
 	},
 
 	getInitialData: function(placeName, placeDataArray) {
 		function callback (results, status) {
-			console.log(placeDataArray);
-			console.log(MapFunc.initialData())
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			placeDataArray.push( new Place(results[0]));
 			MapFunc.getGoogleDetails(results[0].place_id);
@@ -159,7 +154,7 @@ var Place = function(placeData) {
 	this.lat = placeData.geometry.location.lat();
 	this.lng = placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
-	this.photoUrl = placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65});
+	this.photoUrl = placeData.photos ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city";
 	this.marker = new google.maps.Marker({
 			position: placeData.geometry.location,
 			//map: MapFunc.map,
@@ -218,19 +213,19 @@ var Cat = function(data) {
 
 var ViewModel = function() {
 	var self = this;
-	self.arrayOfArrays = []
-	self.arrayOfArrays.push(MapFunc.initialData)
-
-	//MapFunc.init();
-	//dynamicModel.init();
+	self.arrayOfArrays = ko.observableArray();
+	self.arrayOfArrays.push(MapFunc.initialData);
 
 
+	self.currentList = ko.observableArray();
+	//self.currentList(MapFunc.initialData());
 
-
-	self.currentList = ko.computed(function() {
-		return self.arrayOfArrays[0]();
+	//self.currentList = ko.computed(function() {
+		//return self.arrayOfArrays()[0]();
+	//})
+	self.clone = ko.computed(function(){
+		self.currentList(MapFunc.initialData())
 	})
-
 
 	//ko.observableArray(MapFunc.initialData());
 
@@ -247,12 +242,17 @@ var ViewModel = function() {
 		}
 	})
 	self.setCurrentList = function() {
+		self.clearMarkers();
 		self.currentList ( this );
+
 	}
-	self.currentMarkers = ko.computed ( function() {
+	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
 		})
+	}
+	self.currentMarkers = ko.computed ( function() {
+		self.clearMarkers();
 		self.filteredPlaces().forEach(function(place) {
 			place.marker.setMap(MapFunc.map)
 		})

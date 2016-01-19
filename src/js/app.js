@@ -2,42 +2,72 @@ var categories = ["food","drinks"]
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
 
-var dynamicModel = {
-	arrayOfArrays: ko.observableArray(),
-	simpleArrayOfArrays: [],
+var Model = {
 	resultsLimit: 3,
 	init: function() {
-		console.log("I'm a dynamic Model")
 		var parent = this;
-		parent.simpleArrayOfArrays.push(MapFunc.initialData);
+		var self = this;
 
 		categories.forEach(function(category){
-			var categoryName = category + "PlaceArray"
-			var categoryStorage = category + "LocalStorage"
-			parent[categoryName] = ko.observableArray();
-			parent[categoryStorage] = category
-			//localStorage[categoryName] = ''
-			vm.arrayOfArrays.push(parent[categoryName])
+			console.log(category);
+			var categoryArrayName = category + "PlaceArray"
+			self[categoryArrayName] = ko.observableArray();
+			vm.arrayOfArrays.push(parent[categoryArrayName])
+			if (!localStorage.testing1) {  //if no localStorage Exists
+				self.getFoursquareList(category, self[categoryArrayName])
+			} else {
+				self.populateFromLocalStorage(category, categoryArrayName)
+				//each category...
+			}
 
-			//var categoryResults = ko.observableArray([]);
-			//parent.arrayOfArrays.push(categoryArray()); //this is wrong
 
+/*
 			var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + parent.resultsLimit;
 			$.getJSON(foursquareAPI, function(data) {
 				for (var i = 0; i < data.response.groups[0].items.length; i++) {
 					console.log(data.response.groups[0].items[i].venue.name)
 					var resultName = data.response.groups[0].items[i].venue.name;
-					//categoryResults.push(resultName);
-					MapFunc.getInitialData(resultName,parent[categoryName],categoryName)
-					//send name to google text Search here
+					MapFunc.getInitialData(resultName,parent[categoryArrayName],categoryArrayName)
 				};
 				//console.log(data.response.groups[0].items[0].venue.name)
 			})
 
-
+          */
 		})
 
+	},
+	getFoursquareList: function(category, categoryArrayName) {
+		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
+		var categoryLocalStorage = category + "LocalStorage"
+		$.getJSON(foursquareAPI, function(data) {
+			for (var i = 0; i < data.response.groups[0].items.length; i++) {
+				console.log(data.response.groups[0].items[i].venue.name)
+				var resultName = data.response.groups[0].items[i].venue.name;
+				MapFunc.getInitialData(resultName, categoryArrayName,categoryLocalStorage)
+			};
+				//console.log(data.response.groups[0].items[0].venue.name)
+		})
+
+	},
+	populateFromLocalStorage: function(category, categoryArrayName) {
+		var self = Model;
+		var placeIdArray = self.getPlaceIdArray(category);
+			//console.log(placeIdArray);
+	 		placeIdArray.forEach(function(placeId){
+				console.log(placeId);
+				//console.log(localStorage[placeId]);
+				console.log(JSON.parse(localStorage[placeId]));
+				self[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId])))
+				//parent.getLocalStorageData(placeId, parent.initialData);
+			})
+
+	},
+	getPlaceIdArray: function(category) {
+		var nameStr = category + "LocalStorage"
+		var str = localStorage[nameStr].slice(0,-1);
+		return str.split(',')
 	}
+
 
 }
 
@@ -62,9 +92,11 @@ var MapFunc = {
 		if(!localStorage.testing1) {
 			localStorage.topPics = ''
 			topPicks.forEach(function(placeName){
-				parent.getInitialData(placeName, parent.initialData,'topPics');
+				parent.getInitialData(placeName, parent.initialData,'topPicsLocalStorage');
 			})
 		} else {
+
+			//Model.populateFromLocalStorage('topPics', MapFunc.initialData)
 			var placeIdArray = parent.getPlaceIdArray();
 			//console.log(placeIdArray);
 	 		placeIdArray.forEach(function(placeId){
@@ -75,6 +107,7 @@ var MapFunc = {
 				parent.initialData.push( new Place(JSON.parse(localStorage[placeId])))
 				//parent.getLocalStorageData(placeId, parent.initialData);
 			})
+
 			topPicks.forEach(function(placeName){
 				//parent.getInitialData(placeName, parent.initialData);
 
@@ -116,7 +149,7 @@ var MapFunc = {
 
 	},
 	getPlaceIdArray: function() {
-		var str = localStorage.placeIdList.slice(0,-1);
+		var str = localStorage.topPicsLocalStorage.slice(0,-1);
 		return str.split(',')
 	},
 	getGoogleDetails: function(placeID, placeDataArray) {

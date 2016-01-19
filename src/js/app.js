@@ -1,40 +1,3 @@
-var initialCats = [
-	{
-		clickCount: 0,
-		name: 'Tabby',
-		imgSrc: 'img/tabby.jpg',
-		imgAttribution: 'http://www.flickr.com',
-		nicknames: ["The Cutest!!", "Almost as Cute", "As cute as Unicorn Smiles", "The Cat"]
-	},
-	{
-		clickCount: 0,
-		name: 'Sleepy',
-		imgSrc: 'img/sleepy.jpg',
-		imgAttribution: 'http://www.flickr.com',
-		nicknames: ["Super the sleepiest!!!", "Almost as Cute", "As cute as Unicorn Smiles", "The Cat"]
-	},
-	{
-		clickCount: 0,
-		name: 'Lioness',
-		imgSrc: 'img/rawr.jpg',
-		imgAttribution: 'http://www.flickr.com',
-		nicknames: ["King of Kute", "Cub with the Cute", "As cute as Unicorn Smiles", "The Cat"]
-	},
-	{
-		clickCount: 0,
-		name: 'Sarah Rebecca Elizabeth Windsor',
-		imgSrc: 'img/lawncat.jpg',
-		imgAttribution: 'http://www.flickr.com',
-		nicknames: ["Her Royal Meowjesty", "Princess of Purrdom", "As cute as Unicorn Smiles", "The Cat"]
-	},
-	{
-		clickCount: 0,
-		name: 'The Donald',
-		imgSrc: 'img/fatcat.jpg',
-		imgAttribution: 'http://www.flickr.com',
-		nicknames: ["Present!", "R U Still here?", "Hair for days", "The Cat"]
-	}
-]
 var categories = ["food","drinks"]
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
@@ -42,7 +5,7 @@ var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "
 var dynamicModel = {
 	arrayOfArrays: ko.observableArray(),
 	simpleArrayOfArrays: [],
-	resultsLimit: 10,
+	resultsLimit: 3,
 	init: function() {
 		console.log("I'm a dynamic Model")
 		var parent = this;
@@ -73,9 +36,6 @@ var dynamicModel = {
 
 	}
 
-
-
-
 }
 
 var MapFunc = {
@@ -84,13 +44,6 @@ var MapFunc = {
     	zoom: 8,
     	disableDefaultUI: true
   	},
-	callback: function(results, status) {
-		if (status == google.maps.places.PlacesServiceStatus.OK) {
-			MapFunc.initialData.push( new Place(results[0]));
-			MapFunc.getGoogleDetails(results[0].place_id);
-
-    	}
-	},
 	initialData: ko.observableArray(),
 	init: function () {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
@@ -99,14 +52,46 @@ var MapFunc = {
 
 		//this.initialData = ko.observableArray();
 		var parent = this;
-		topPicks.forEach(function(placeName){
-			parent.getInitialData(placeName, parent.initialData);
-		})
+		if(!localStorage.testing1) {
+			topPicks.forEach(function(placeName){
+				parent.getInitialData(placeName, parent.initialData);
+			})
+		} else {
+			var placeIdArray = parent.getPlaceIdArray();
+			//console.log(placeIdArray);
+	 		placeIdArray.forEach(function(placeId){
+				//console.log(placeId);
+				//console.log(localStorage[placeId]);
+				console.log(JSON.parse(localStorage[placeId]));
+
+				parent.initialData.push( new Place(JSON.parse(localStorage[placeId])))
+				//parent.getLocalStorageData(placeId, parent.initialData);
+			})
+			topPicks.forEach(function(placeName){
+				//parent.getInitialData(placeName, parent.initialData);
+
+			})
+
+		}
+
+
+
+
+
 	},
 
 	getInitialData: function(placeName, placeDataArray) {
 		function callback (results, status) {
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
+			localStorage.setItem('testing1', 'test')
+
+			var test = (JSON.stringify(results[0]))
+			localStorage.setItem(results[0].place_id, test);
+
+			var placeIdList = (localStorage.placeIdList || '' ) + results[0].place_id + ','
+			localStorage.setItem('placeIdList', placeIdList )
+
+
 			placeDataArray.push( new Place(results[0]));
 			MapFunc.getGoogleDetails(results[0].place_id);
     		}
@@ -118,6 +103,14 @@ var MapFunc = {
 		//})
 
 	},
+	getLocalStorageData: function(placeID, placeDataArray) {
+
+
+	},
+	getPlaceIdArray: function() {
+		var str = localStorage.placeIdList.slice(0,-1);
+		return str.split(',')
+	},
 	getGoogleDetails: function(placeID) {
 		MapFunc.service.getDetails({placeId: placeID}, MapFunc.googleDetailsCallback );
 	},
@@ -126,6 +119,7 @@ var MapFunc = {
 		this.infoWindow.open(this.map, marker);
 	},
 	googleDetailsCallback: function(results, status){
+		console.log(status);
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
     		MapFunc.initialData().forEach(function(place) {
     			if (place.placeID == results.place_id) {
@@ -151,10 +145,11 @@ var Place = function(placeData) {
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
-	this.lat = placeData.geometry.location.lat();
-	this.lng = placeData.geometry.location.lng();
+	this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
+	this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
-	this.photoUrl = placeData.photos ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city";
+	this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "no clue yet" ) : "http://lorempixel.com/65/65/city";
+	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 			position: placeData.geometry.location,
 			//map: MapFunc.map,
@@ -177,12 +172,6 @@ var Place = function(placeData) {
 	this.website = ko.observable('');
 
 
-
-
-	//ko.computed(function() {
-	//	return "<h2>" + this.name + "</h2>"
-	//},this);
-
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
 	})
@@ -195,21 +184,6 @@ var fancierPlace = function (place, detailsData) {
 	place.website(detailsData.website)// =  || "No Website Given";
 	//place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
 }
-
-var Cat = function(data) {
-	this.clickCount = ko.observable(data.clickCount);
-	this.name = ko.observable(data.name);
-	this.imgSrc = ko.observable(data.imgSrc);
-	this.imgAttribution = ko.observable(data.imgAttribution);
-
-	this.catLevelArray = ["infant","toddler", "pre-teen", "annoying teen", "teen", "adolescent", "adult", "dead...awkward. You totally killed it"]
-
-	this.catLevel = ko.computed(function() {
-		return this.catLevelArray[Math.floor(this.clickCount()/10)];
-	},this)
-	this.nicknames = ko.observable(data.nicknames);
-}
-
 
 var ViewModel = function() {
 	var self = this;
@@ -230,6 +204,21 @@ var ViewModel = function() {
 	//ko.observableArray(MapFunc.initialData());
 
 	self.currentFilter = ko.observable('');
+	self.localStorageClone = ko.computed(function(){
+		self.currentList().forEach(function(place) {
+			//console.log(ko.toJS(place))
+		})
+		//console.log(ko.JSON(MapFunc.initialData()))
+		//localStorage.initialData = JSON.stringify(MapFunc.initialData());
+		//console.log(localStorage.initialData);
+		//self.arrayOfArrays().forEach(function(list) {
+		//	list()
+		//})
+		//localStorage.initialData = JSON.stringify();
+
+		//localStorage.foodData = JSON.stringify();
+		//localStorage.dinksData = JSON.stringify()
+	})
 
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();

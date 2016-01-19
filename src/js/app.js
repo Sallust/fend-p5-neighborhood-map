@@ -25,7 +25,7 @@ var Model = {
 			if (!localStorage.testing1) {  //if no localStorage Exists
 				setTimeout(function() {
 					self.getFoursquareList(category, self[categoryArrayName])
-				},1500)
+				},2000)
 
 			} else {
 				self.populateFromLocalStorage(category, categoryArrayName)
@@ -100,7 +100,7 @@ var Model = {
 var MapFunc = {
 	mapOptions: {
 		center: {lat: 38.031, lng: -78.486},
-    	zoom: 8,
+    	zoom: 10,
     	disableDefaultUI: true
   	},
 	init: function () {
@@ -115,18 +115,17 @@ var MapFunc = {
 			//console.log("init" + status)
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 
-				Model.saveInLocalStorage(results[0], category)
-
-				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray);
+				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray, category);
 	    	}
     	}
 			this.service.textSearch({query: placeName}, callback)
 	},
-	getGoogleDetails: function(placeID, placeDataArray) {
+	getGoogleDetails: function(placeID, placeDataArray, category) {
 		function detailsCallback (results, status) {
 			console.log("detail" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
-				placeDataArray.push( new Place(results))
+				placeDataArray.push( new Place(results));
+				Model.saveInLocalStorage(results, category)
   			}
 		}
 		MapFunc.service.getDetails({placeId: placeID}, detailsCallback );

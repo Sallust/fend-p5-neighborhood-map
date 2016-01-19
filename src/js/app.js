@@ -4,9 +4,21 @@ var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "
 
 var Model = {
 	resultsLimit: 3,
+	topPicksPlaceArray: ko.observableArray(),
 	init: function() {
 		var parent = this;
 		var self = this;
+
+		if (!localStorage.testing1) {
+			topPicks.forEach(function(placeName){
+				MapFunc.getInitialData(placeName, self.topPicksPlaceArray,'topPicsLocalStorage');
+			})
+		} else {
+			self.populateFromLocalStorage('topPics', 'topPicksPlaceArray');
+		}
+
+
+
 
 		categories.forEach(function(category){
 			console.log(category);
@@ -165,19 +177,7 @@ var MapFunc = {
 		this.infoWindow.setContent(marker.infoWindowContent);
 		this.infoWindow.open(this.map, marker);
 	},
-	googleDetailsCallback: function(results, status){
-		console.log(results);
-		if (status == google.maps.places.PlacesServiceStatus.OK) {
 
-    		MapFunc.initialData().forEach(function(place) {
-    			if (place.placeID == results.place_id) {
-    				//place.phone = results.formatted_phone_number;
-    				fancierPlace(place, results);
-    			}
-    		})
-
-  		}
-	},
 	getGoogleData: function() {
 
 	}
@@ -240,7 +240,7 @@ var fancierPlace = function (place, detailsData) {
 var ViewModel = function() {
 	var self = this;
 	self.arrayOfArrays = ko.observableArray();
-	self.arrayOfArrays.push(MapFunc.initialData);
+	self.arrayOfArrays.push(Model.topPicksPlaceArray);
 
 
 	self.currentList = ko.observableArray();
@@ -250,7 +250,7 @@ var ViewModel = function() {
 		//return self.arrayOfArrays()[0]();
 	//})
 	self.clone = ko.computed(function(){
-		self.currentList(MapFunc.initialData())
+		self.currentList(Model.topPicksPlaceArray())
 	})
 
 	//ko.observableArray(MapFunc.initialData());

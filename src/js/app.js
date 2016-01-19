@@ -92,6 +92,24 @@ var Model = {
 				place.wikiURL(data[3][0]);
 			}
 		})
+	},
+	getPhoto: function(placeObj, photoData) {
+		var place = placeObj
+		console.log(photoData);
+		if(!photoData) {
+			return "http://lorempixel.com/65/65/city";
+		} else if (!photoData[0].getUrl) {
+			var keyName = place.placeID + "photo"
+			return localStorage[keyName];
+		} else {
+			var photoUrl = photoData[0].getUrl({'maxWidth':65, 'maxHeight':65})
+			this.savePhotoinLocalStorage(photoUrl,place.placeID)
+			return photoUrl;
+		}
+	},
+	savePhotoinLocalStorage: function(photoUrl, placeID) {
+		var keyName = placeID + "photo"
+		localStorage.setItem( keyName, photoUrl)
 	}
 
 
@@ -145,7 +163,9 @@ var Place = function(placeData) {
 	//this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
 	//this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
-	this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city" ) : "http://lorempixel.com/65/65/city";
+
+	this.photoUrl = Model.getPhoto(this, placeData.photos);
+	//this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city" ) : "http://lorempixel.com/65/65/city";
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,

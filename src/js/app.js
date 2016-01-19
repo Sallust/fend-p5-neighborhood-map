@@ -13,7 +13,10 @@ var dynamicModel = {
 
 		categories.forEach(function(category){
 			var categoryName = category + "PlaceArray"
+			var categoryStorage = category + "LocalStorage"
 			parent[categoryName] = ko.observableArray();
+			parent[categoryStorage] = category
+			//localStorage[categoryName] = ''
 			vm.arrayOfArrays.push(parent[categoryName])
 
 			//var categoryResults = ko.observableArray([]);
@@ -25,7 +28,7 @@ var dynamicModel = {
 					console.log(data.response.groups[0].items[i].venue.name)
 					var resultName = data.response.groups[0].items[i].venue.name;
 					//categoryResults.push(resultName);
-					MapFunc.getInitialData(resultName,parent[categoryName])
+					MapFunc.getInitialData(resultName,parent[categoryName],categoryName)
 					//send name to google text Search here
 				};
 				//console.log(data.response.groups[0].items[0].venue.name)
@@ -52,15 +55,20 @@ var MapFunc = {
 
 		//this.initialData = ko.observableArray();
 		var parent = this;
+
+
+
+
 		if(!localStorage.testing1) {
+			localStorage.topPics = ''
 			topPicks.forEach(function(placeName){
-				parent.getInitialData(placeName, parent.initialData);
+				parent.getInitialData(placeName, parent.initialData,'topPics');
 			})
 		} else {
 			var placeIdArray = parent.getPlaceIdArray();
 			//console.log(placeIdArray);
 	 		placeIdArray.forEach(function(placeId){
-				//console.log(placeId);
+				console.log(placeId);
 				//console.log(localStorage[placeId]);
 				console.log(JSON.parse(localStorage[placeId]));
 
@@ -80,20 +88,20 @@ var MapFunc = {
 
 	},
 
-	getInitialData: function(placeName, placeDataArray) {
+	getInitialData: function(placeName, placeDataArray, category) {
 		function callback (results, status) {
+			//console.log("init" + status)
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
 			localStorage.setItem('testing1', 'test')
 
 			var test = (JSON.stringify(results[0]))
 			localStorage.setItem(results[0].place_id, test);
-
-			var placeIdList = (localStorage.placeIdList || '' ) + results[0].place_id + ','
-			localStorage.setItem('placeIdList', placeIdList )
-
-
-			placeDataArray.push( new Place(results[0]));
-			MapFunc.getGoogleDetails(results[0].place_id);
+			console.log(category);
+			console.log(localStorage[category])
+			var placeIdList = ( localStorage[category] || '' ) + results[0].place_id + ','
+			localStorage.setItem( category , placeIdList )
+			//placeDataArray.push( new Place(results[0]));
+			MapFunc.getGoogleDetails(results[0].place_id, placeDataArray);
     		}
     	}
 
@@ -111,16 +119,23 @@ var MapFunc = {
 		var str = localStorage.placeIdList.slice(0,-1);
 		return str.split(',')
 	},
-	getGoogleDetails: function(placeID) {
-		MapFunc.service.getDetails({placeId: placeID}, MapFunc.googleDetailsCallback );
+	getGoogleDetails: function(placeID, placeDataArray) {
+		function detailsCallback (results, status) {
+			console.log("detail" + status);
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				placeDataArray.push( new Place(results))
+  			}
+		}
+		MapFunc.service.getDetails({placeId: placeID}, detailsCallback );
 	},
 	setInfoWindow: function(marker) {
 		this.infoWindow.setContent(marker.infoWindowContent);
 		this.infoWindow.open(this.map, marker);
 	},
 	googleDetailsCallback: function(results, status){
-		console.log(status);
+		console.log(results);
 		if (status == google.maps.places.PlacesServiceStatus.OK) {
+
     		MapFunc.initialData().forEach(function(place) {
     			if (place.placeID == results.place_id) {
     				//place.phone = results.formatted_phone_number;
@@ -145,10 +160,10 @@ var Place = function(placeData) {
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
-	this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
-	this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
+	//this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
+	//this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
-	this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "no clue yet" ) : "http://lorempixel.com/65/65/city";
+	this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city" ) : "http://lorempixel.com/65/65/city";
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 			position: placeData.geometry.location,
@@ -167,9 +182,13 @@ var Place = function(placeData) {
 				self.wikiURL(data[3][0]);
 			}
 		})
-	this.reviewsArray = ko.observableArray([]);
-	this.phone = ko.observable('');
-	this.website = ko.observable('');
+	this.reviewsArray = placeData.reviews;
+	this.phone = placeData.formatted_phone_number;
+	this.website = placeData.website || "No Website Given";
+
+	//this.reviewsArray = ko.observableArray([]);
+	//this.phone = ko.observable('');
+	//this.website = ko.observable('');
 
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
@@ -204,10 +223,22 @@ var ViewModel = function() {
 	//ko.observableArray(MapFunc.initialData());
 
 	self.currentFilter = ko.observable('');
+
 	self.localStorageClone = ko.computed(function(){
-		self.currentList().forEach(function(place) {
-			//console.log(ko.toJS(place))
+		self.arrayOfArrays().forEach(function(list){
+
+			//localStorage[list] = []
+			//list().forEach(function(place){
+			//	var placeIdList = (localStorage[list()] || '' ) + place.place_id + ',';
+			//	localStorage[list()] = placeIdList;
+				//localStorage.setItem([list], placeIdList )
+				//localStorage[list]
+
+			//})
 		})
+		//self.currentList().forEach(function(place) {
+			//console.log(ko.toJS(place))
+
 		//console.log(ko.JSON(MapFunc.initialData()))
 		//localStorage.initialData = JSON.stringify(MapFunc.initialData());
 		//console.log(localStorage.initialData);

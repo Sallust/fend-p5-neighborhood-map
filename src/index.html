@@ -45,16 +45,27 @@
                 </li>
                 <!--ko foreach: filteredPlaces  -->
                     <li>
-                        <a data-bind="text: name, click:$parent.setFocus" href="#"></a>
-                        <img src="" alt="place image" data-bind="attr: {src: photoUrl}">
-                        <p data-bind="text: phone"> </p>
-                        <a data-bind="text: wikiURL"></a>
-                        <p>Reviews</p>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img src="" alt="place image" data-bind="attr: {src: photoUrl}">
+                            </div>
+                            <div class="col-md-9">
+                                <a data-bind="text: name, click:$parent.setFocus" class="place-name" href="#"></a>
 
-                        <ul data-bind="foreach: reviewsArray">
-                            <li data-bind="text: text"></li>
-                        </ul>
+                                <p data-bind="text: phone"> </p>
+                                <a data-bind="text: wikiURL"></a>
+                                <label>
+                                    <input type='checkbox' data-bind='checked: $parent.showReviews' />
+                                    Show Reviews
+                                </label>
 
+                                <ul data-bind="foreach: reviewsArray, fadeIn: $parent.showReviews">
+                                    <li data-bind="text: text"></li>
+                                </ul>
+
+                            </div>
+
+                        </div>
                     </li>
                 <!-- /ko -->
             </ul>

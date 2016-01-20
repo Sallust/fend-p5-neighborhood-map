@@ -15,3 +15,20 @@ body {
 	height: 100vh;
 
 }
+
+.place-name {
+	display: block;
+    text-decoration: none;
+    color: #999999;
+}
+
+.place-name:hover {
+	text-decoration: none;
+    color: #fff;
+    background: rgba(255,255,255,0.2);
+}
+
+.place-name:active,
+.place-name:focus{
+	text-decoration: none;
+}

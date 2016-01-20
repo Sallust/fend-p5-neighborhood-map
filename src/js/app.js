@@ -22,50 +22,6 @@ var Model = {
 
 		})
 
-		/*
-		if (!localStorage.testing1) {
-			topPicks.forEach(function(placeName){
-				MapFunc.getInitialData(placeName, self.topPicksPlaceArray,'topPicsLocalStorage');
-			})
-		} else {
-			self.populateFromLocalStorage('topPics', 'topPicksPlaceArray');
-		}
-	*/     /*
-		for (var i = 1; i <= categories.length; i++) {
-			var category = categories[i-1]
-			var categoryArrayName = category + "PlaceArray"
-			self[categoryArrayName] = ko.observableArray();
-			vm.arrayOfArrays.push(parent[categoryArrayName])
-			if (!localStorage.testing1) {  //if no localStorage Exists
-				setTimeout(function(category, categoryArrayName) {
-					console.log(category)
-					self.getFoursquareList(category, self[categoryArrayName])
-				},4000 * i, category, categoryArrayName)
-
-			} else {
-				self.populateFromLocalStorage(category, categoryArrayName)
-
-			}
-
-		}; */
-/*
-		categories.forEach(function(category){
-			console.log(category);
-			var categoryArrayName = category + "PlaceArray"
-			self[categoryArrayName] = ko.observableArray();
-			vm.arrayOfArrays.push(parent[categoryArrayName])
-			if (!localStorage.testing1) {  //if no localStorage Exists
-				setTimeout(function() {
-					self.getFoursquareList(category, self[categoryArrayName])
-				},3000)
-
-			} else {
-				self.populateFromLocalStorage(category, categoryArrayName)
-
-			}
-
-		}) */
-
 	},
 	getData: function(category, placeNameList) {
 		var categoryArrayName = category + "PlaceArray";
@@ -74,10 +30,8 @@ var Model = {
 		if (!localStorage[categoryLocalStorage]) {
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
-				console.log("Getting new data")
 			})
 		} else {
-			console.log("LocalStorage FTW!")
 			Model.populateFromLocalStorage(category, categoryArrayName);
 		}
 	},
@@ -237,7 +191,6 @@ var Place = function(placeData) {
 
 	this.showReviews = ko.observable(false);
 
-	//this.reviewsArray = ko.observableArray([]);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
@@ -252,7 +205,6 @@ var ViewModel = function() {
 	self.arrayOfArrays = ko.observableArray();
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
 	self.currentSelection = ko.observable(0);
-	//self.showReviews = ko.observable(false);
 
 	self.buttonArray = ko.observableArray(['Top Pics', "Food", "Drinks"]);
 

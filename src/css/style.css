@@ -16,10 +16,18 @@ body {
 
 }
 
+.sidebar-brand {
+	height: 65px;
+    font-size: 18px;
+    line-height: 60px;
+    text-indent: 20px;
+}
 .place-name {
 	display: block;
     text-decoration: none;
     color: #999999;
+    text-indent: 20px;
+    line-height: 40px;
 }
 
 .place-name:hover {
@@ -31,4 +39,10 @@ body {
 .place-name:active,
 .place-name:focus{
 	text-decoration: none;
+}
+
+.reviews {
+	line-height: 18px;
+	text-decoration: none;
+	padding: 0 0.5em 0 0
 }

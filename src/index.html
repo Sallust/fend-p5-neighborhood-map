@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-9">
                                 <a data-bind="text: name, click:$parent.setFocus" class="place-name" href="#"></a>
-
+                                <p data-bind="text: address"></p>
                                 <p data-bind="text: phone"> </p>
                                 <a data-bind="text: wikiURL"></a>
                                 <label>
@@ -60,7 +60,7 @@
                                 </label>
                             </div>
                                 <ul data-bind="foreach: reviewsArray, fadeIn: showReviews">
-                                    <li data-bind="text: text"></li>
+                                    <li data-bind="text: text" class="reviews"></li>
                                 </ul>
 
 

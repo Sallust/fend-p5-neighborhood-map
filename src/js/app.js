@@ -17,6 +17,24 @@ var Model = {
 			self.populateFromLocalStorage('topPics', 'topPicksPlaceArray');
 		}
 
+		for (var i = 1; i <= categories.length; i++) {
+			var category = categories[i-1]
+			var categoryArrayName = category + "PlaceArray"
+			self[categoryArrayName] = ko.observableArray();
+			vm.arrayOfArrays.push(parent[categoryArrayName])
+			if (!localStorage.testing1) {  //if no localStorage Exists
+				setTimeout(function(category, categoryArrayName) {
+					console.log(category)
+					self.getFoursquareList(category, self[categoryArrayName])
+				},4000 * i, category, categoryArrayName)
+
+			} else {
+				self.populateFromLocalStorage(category, categoryArrayName)
+
+			}
+
+		};
+/*
 		categories.forEach(function(category){
 			console.log(category);
 			var categoryArrayName = category + "PlaceArray"
@@ -25,14 +43,14 @@ var Model = {
 			if (!localStorage.testing1) {  //if no localStorage Exists
 				setTimeout(function() {
 					self.getFoursquareList(category, self[categoryArrayName])
-				},2000)
+				},3000)
 
 			} else {
 				self.populateFromLocalStorage(category, categoryArrayName)
 
 			}
 
-		})
+		}) */
 
 	},
 	getFoursquareList: function(category, categoryArrayName) {
@@ -52,9 +70,9 @@ var Model = {
 		var placeIdArray = self.getPlaceIdArray(category);
 			//console.log(placeIdArray);
 	 		placeIdArray.forEach(function(placeId){
-				console.log(placeId);
+				//console.log(placeId);
 				//console.log(localStorage[placeId]);
-				console.log(JSON.parse(localStorage[placeId]));
+				//console.log(JSON.parse(localStorage[placeId]));
 				self[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId])))
 				//parent.getLocalStorageData(placeId, parent.initialData);
 			})
@@ -95,7 +113,6 @@ var Model = {
 	},
 	getPhoto: function(placeObj, photoData) {
 		var place = placeObj
-		console.log(photoData);
 		if(!photoData) {
 			return "http://lorempixel.com/65/65/city";
 		} else if (!photoData[0].getUrl) {
@@ -122,6 +139,7 @@ var MapFunc = {
     	disableDefaultUI: true
   	},
 	init: function () {
+		this.coordinates = new google.maps.LatLng(38.031,-78.486)
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
@@ -136,7 +154,12 @@ var MapFunc = {
 				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray, category);
 	    	}
     	}
-			this.service.textSearch({query: placeName}, callback)
+    	var request = {
+    		location: this.coordinates,
+    		radius: 1000,
+    		query: placeName
+    	}
+		this.service.textSearch(request, callback)
 	},
 	getGoogleDetails: function(placeID, placeDataArray, category) {
 		function detailsCallback (results, status) {

@@ -118,7 +118,7 @@ var Model = {
 var MapFunc = {
 	mapOptions: {
 		center: {lat: 38.031, lng: -78.486},
-    	zoom: 10,
+    	zoom: 12,
     	disableDefaultUI: true
   	},
 	init: function () {
@@ -166,6 +166,7 @@ var Place = function(placeData) {
 
 	this.photoUrl = Model.getPhoto(this, placeData.photos);
 	//this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city" ) : "http://lorempixel.com/65/65/city";
+
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,
@@ -176,17 +177,6 @@ var Place = function(placeData) {
 
 	Model.getWikiUrl(this);
 
-/*
-	var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + this.name +'&format=json'
-
-	var self = this;
-	$.ajax({
-			url: wikiAPI,
-			dataType: "jsonp",
-			success: function(data) {
-				self.wikiURL(data[3][0]);
-			}
-		})   */
 	this.reviewsArray = placeData.reviews;
 	this.phone = placeData.formatted_phone_number;
 	this.website = placeData.website || "No Website Given";
@@ -206,6 +196,8 @@ var ViewModel = function() {
 	self.arrayOfArrays = ko.observableArray();
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
 
+	self.buttonArray = ko.observableArray(['Top Pics', "Food", "Drinks"]);
+
 
 	self.currentList = ko.observableArray();
 
@@ -213,11 +205,7 @@ var ViewModel = function() {
 		self.currentList(Model.topPicksPlaceArray())
 	})
 
-	//ko.observableArray(MapFunc.initialData());
-
 	self.currentFilter = ko.observable('');
-
-
 
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();

@@ -43,7 +43,7 @@
                         List of Attractions
                     </a>
                 </li>
-                <!--ko foreach: filteredPlaces  -->
+                <!--ko foreach: { data: filteredPlaces, beforeRemove: slideAway, afterRender: fade }  -->
                     <li>
                         <div class="row">
                             <div class="col-md-3">

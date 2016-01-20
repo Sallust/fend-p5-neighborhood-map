@@ -68,16 +68,16 @@ var Model = {
 
 	},
 	getData: function(category, placeNameList) {
-		console.log("I'm getting Data.. vroom vroom ")
-		console.log(placeNameList)
 		var categoryArrayName = category + "PlaceArray";
 		var categoryLocalStorage = category + "LocalStorage"
-		console.log(categoryArrayName);
-		if (!localStorage.categoryLocalStorage) {
+		console.log(categoryLocalStorage);
+		if (!localStorage[categoryLocalStorage]) {
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
+				console.log("Getting new data")
 			})
 		} else {
+			console.log("LocalStorage FTW!")
 			Model.populateFromLocalStorage(category, categoryArrayName);
 		}
 	},
@@ -280,16 +280,13 @@ var ViewModel = function() {
 
 	self.setCurrentList = function(index, thisArray) {
 		self.clearMarkers();
-		if(this.length == 0){
+		self.currentSelection(index);
+		self.currentTitle (self.buttonArray()[index]);
+		if(this.length == 0) {
 			var category = categories[index - 1];
 			Model.getData(category, Model[category]());
 		}
-		self.currentSelection(index);
 
-
-		//self.currentList ( self.arrayOfArrays()[index]() );
-		self.currentTitle (self.buttonArray()[index]);
-		console.log(this.length)
 	}
 
 	self.clearMarkers = function() {
@@ -314,6 +311,16 @@ var ViewModel = function() {
 	}
 	self.test = function() {
 		console.log("I'm working!")
+	}
+	self.slideAway = function(element, index, data) {
+		$(element).filter('li').slideUp(function() {
+			$(element).remove();
+			console.log("testing")
+		})
+	},
+	self.fade = function(element, index, data) {
+		$(element).hide().fadeIn();
+		console.log("testing45")
 	}
 
 }

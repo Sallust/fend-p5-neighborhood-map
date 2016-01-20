@@ -74,8 +74,6 @@ var Model = {
 
 	},
 	saveInLocalStorage: function(results, category) {
-		localStorage.setItem('testing1', 'test')
-
 		var resultsString = (JSON.stringify(results))
 		localStorage.setItem(results.place_id, resultsString);
 		//console.log(category);
@@ -219,19 +217,27 @@ var ViewModel = function() {
 
 	self.currentFilter = ko.observable('');
 
+	self.categoryToShow = ko.observable('')
+
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();
-		if(!filter) {
+		if(!filter && !self.categoryToShow()) {  //if there is nothing being typed in the filter AND no selcted category
 			return self.currentList()
-		} else {
+		} else if (filter) {
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
 				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
+			})
+		} else {
+			return ko.utils.arrayFilter(self.currentList(), function(place) {
+				return place.typesArray.indexOf(self.categoryToShow()) != -1  //returns true when search category exists within types array
 			})
 		}
 	})
 
 	self.setCurrentList = function(index, thisArray) {
+		self.categoryToShow('');
 		self.clearMarkers();
+
 		self.currentSelection(index);
 		self.currentTitle (self.buttonArray()[index]);
 		if(this.length == 0) {
@@ -261,18 +267,21 @@ var ViewModel = function() {
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
 	}
-	self.test = function() {
-		console.log("I'm working!")
-	}
+	self.uniqueCategories = ko.computed(function(){
+		var array = []
+		self.currentList().forEach(function(place){
+			array = array.concat(place.typesArray);
+		})
+		return ko.utils.arrayGetDistinctValues(array)
+	})
+
 	self.slideAway = function(element, index, data) {
 		$(element).filter('li').slideUp(function() {
 			$(element).remove();
-			console.log("testing")
 		})
 	},
 	self.fade = function(element, index, data) {
 		$(element).hide().fadeIn();
-		console.log("testing45")
 	}
 
 }

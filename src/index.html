@@ -43,6 +43,11 @@
                         List of Attractions
                     </a>
                 </li>
+                <li data-bind="foreach: uniqueCategories">
+                       <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}"><span data-bind="text: $data">I'm text</span>
+
+
+                </li>
                 <!--ko foreach: { data: filteredPlaces, beforeRemove: slideAway, afterRender: fade }  -->
                     <li>
                         <div class="row">

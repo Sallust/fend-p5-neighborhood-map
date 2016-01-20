@@ -11,7 +11,15 @@ var Model = {
 
 		this.getData('topPicks', topPicks);
 		categories.forEach(function(category){
-			self[category] = ko.observableArray();
+			var categoryArrayName = category + "PlaceArray";
+
+			self[category] = ko.observableArray(); //simple list of place names from foursquare
+			self[categoryArrayName] = ko.observableArray(); //future home of place data
+			vm.arrayOfArrays.push(parent[categoryArrayName])
+			if(self[category]().length == 0) {
+				self.getFoursquareList(category, self[categoryArrayName])
+			}
+
 		})
 
 		/*
@@ -22,7 +30,7 @@ var Model = {
 		} else {
 			self.populateFromLocalStorage('topPics', 'topPicksPlaceArray');
 		}
-	*/
+	*/     /*
 		for (var i = 1; i <= categories.length; i++) {
 			var category = categories[i-1]
 			var categoryArrayName = category + "PlaceArray"
@@ -39,7 +47,7 @@ var Model = {
 
 			}
 
-		};
+		}; */
 /*
 		categories.forEach(function(category){
 			console.log(category);
@@ -60,25 +68,28 @@ var Model = {
 
 	},
 	getData: function(category, placeNameList) {
+		console.log("I'm getting Data.. vroom vroom ")
+		console.log(placeNameList)
 		var categoryArrayName = category + "PlaceArray";
 		var categoryLocalStorage = category + "LocalStorage"
-		if (!localStorage.testing1) {
+		console.log(categoryArrayName);
+		if (!localStorage.categoryLocalStorage) {
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
 			})
 		} else {
-			console.log(category);
-			console.log(categoryArrayName)
 			Model.populateFromLocalStorage(category, categoryArrayName);
 		}
 	},
 	getFoursquareList: function(category, categoryArrayName) {
 		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
-		var categoryLocalStorage = category + "LocalStorage"
+		var categoryLocalStorage = category + "LocalStorage";
+		var category = category;
 		$.getJSON(foursquareAPI, function(data) {
 			for (var i = 0; i < data.response.groups[0].items.length; i++) {
 				console.log(data.response.groups[0].items[i].venue.name + " " +  category)
 				var resultName = data.response.groups[0].items[i].venue.name;
+				console.log(category);
 				Model[category]().push(resultName)
 				//MapFunc.getInitialData(resultName, categoryArrayName,categoryLocalStorage)
 			};
@@ -185,7 +196,6 @@ var MapFunc = {
 		function detailsCallback (results, status) {
 			console.log("detail" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
-				console.log(placeDataArray())
 				placeDataArray.push( new Place(results));
 				Model.saveInLocalStorage(results, category)
   			}
@@ -241,17 +251,18 @@ var ViewModel = function() {
 	var self = this;
 	self.arrayOfArrays = ko.observableArray();
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
+	self.currentSelection = ko.observable(0);
 	//self.showReviews = ko.observable(false);
 
 	self.buttonArray = ko.observableArray(['Top Pics', "Food", "Drinks"]);
 
 
-	self.currentList = ko.observableArray();
+	self.currentList = ko.observableArray([]);
 
 	self.currentTitle = ko.observable('Top Pics');
 
 	self.clone = ko.computed(function(){
-		self.currentList(Model.topPicksPlaceArray())
+		self.currentList(self.arrayOfArrays()[self.currentSelection()]())
 	})
 
 	self.currentFilter = ko.observable('');
@@ -266,11 +277,21 @@ var ViewModel = function() {
 			})
 		}
 	})
+
 	self.setCurrentList = function(index, thisArray) {
 		self.clearMarkers();
-		self.currentList ( thisArray );
+		if(this.length == 0){
+			var category = categories[index - 1];
+			Model.getData(category, Model[category]());
+		}
+		self.currentSelection(index);
+
+
+		//self.currentList ( self.arrayOfArrays()[index]() );
 		self.currentTitle (self.buttonArray()[index]);
+		console.log(this.length)
 	}
+
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);

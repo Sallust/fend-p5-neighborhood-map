@@ -181,6 +181,8 @@ var Place = function(placeData) {
 	this.phone = placeData.formatted_phone_number;
 	this.website = placeData.website || "No Website Given";
 
+	this.showReviews = ko.observable(false);
+
 	//this.reviewsArray = ko.observableArray([]);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
@@ -195,12 +197,14 @@ var ViewModel = function() {
 	var self = this;
 	self.arrayOfArrays = ko.observableArray();
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
-	self.showReviews = ko.observable(false);
+	//self.showReviews = ko.observable(false);
 
 	self.buttonArray = ko.observableArray(['Top Pics', "Food", "Drinks"]);
 
 
 	self.currentList = ko.observableArray();
+
+	self.currentTitle = ko.observable('Top Pics');
 
 	self.clone = ko.computed(function(){
 		self.currentList(Model.topPicksPlaceArray())
@@ -218,9 +222,10 @@ var ViewModel = function() {
 			})
 		}
 	})
-	self.setCurrentList = function() {
+	self.setCurrentList = function(index, thisArray) {
 		self.clearMarkers();
-		self.currentList ( this );
+		self.currentList ( thisArray );
+		self.currentTitle (self.buttonArray()[index]);
 	}
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
@@ -242,6 +247,9 @@ var ViewModel = function() {
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
 	}
+	self.test = function() {
+		console.log("I'm working!")
+	}
 
 }
 
@@ -254,7 +262,7 @@ ko.bindingHandlers.fadeIn = {
     update: function(element, valueAccessor) {
         // Whenever the value subsequently changes, slowly fade the element in or out
         var value = valueAccessor();
-        ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
+        ko.unwrap(value) ? $(element).slideDown("slow") : $(element).slideUp();
     }
 };
 

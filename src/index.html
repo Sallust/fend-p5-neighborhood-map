@@ -27,7 +27,7 @@
                         <input type="text" placeholder="Type Search Here" class="form-control" data-bind="textInput: currentFilter">
                     </div>
                     <div data-bind="foreach: arrayOfArrays " class="form-group">
-                        <button data-bind="click: $parent.setCurrentList, text: $parent.buttonArray()[$index()]"class="btn btn-success">Sign in</button>
+                        <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray()[$index()]"class="btn btn-success">Sign in</button>
                     </div>
 
 
@@ -39,7 +39,7 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="#">
+                    <a data-bind="text: currentTitle, beforeMove: currentTitle" href="#">
                         List of Attractions
                     </a>
                 </li>
@@ -55,15 +55,15 @@
                                 <p data-bind="text: phone"> </p>
                                 <a data-bind="text: wikiURL"></a>
                                 <label>
-                                    <input type='checkbox' data-bind='checked: $parent.showReviews' />
+                                    <input type='checkbox' data-bind='checked: showReviews' />
                                     Show Reviews
                                 </label>
-
-                                <ul data-bind="foreach: reviewsArray, fadeIn: $parent.showReviews">
+                            </div>
+                                <ul data-bind="foreach: reviewsArray, fadeIn: showReviews">
                                     <li data-bind="text: text"></li>
                                 </ul>
 
-                            </div>
+
 
                         </div>
                     </li>

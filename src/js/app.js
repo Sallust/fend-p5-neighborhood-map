@@ -1,4 +1,4 @@
-var categories = ["food","drinks"]
+var categories = ["food","drinks", "coffee", "arts"]
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
 
@@ -36,7 +36,7 @@ var Model = {
 		}
 	},
 	getFoursquareList: function(category, categoryArrayName) {
-		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20130815&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
+		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20150826&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
 		var categoryLocalStorage = category + "LocalStorage";
 		var category = category;
 		$.getJSON(foursquareAPI, function(data) {
@@ -97,7 +97,7 @@ var Model = {
 	getPhoto: function(placeObj, photoData) {
 		var place = placeObj
 		if(!photoData) {
-			return "http://lorempixel.com/65/65/city";
+			return "http://lorempixel.com/65/65/nightlife/" + Math.floor(Math.random()*10) ;
 		} else if (!photoData[0].getUrl) {
 			var keyName = place.placeID + "photo"
 			return localStorage[keyName];
@@ -110,6 +110,15 @@ var Model = {
 	savePhotoinLocalStorage: function(photoUrl, placeID) {
 		var keyName = placeID + "photo"
 		localStorage.setItem( keyName, photoUrl)
+	},
+	makeButtonList: function(categoriesArray) {
+		var array = ['Top Picks'];
+		for (var i = 0; i < categoriesArray.length; i++) {
+			var capitalizedCategory = categoriesArray[i][0].toUpperCase() + categoriesArray[i].slice(1);
+			array.push(capitalizedCategory);
+		};
+		return array;
+
 	}
 
 
@@ -210,12 +219,12 @@ var ViewModel = function() {
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
 	self.currentSelection = ko.observable(0);
 
-	self.buttonArray = ko.observableArray(['Top Pics', "Food", "Drinks"]);
+	self.buttonArray = ko.observableArray(Model.makeButtonList(categories));
 
 
 	self.currentList = ko.observableArray([]);
 
-	self.currentTitle = ko.observable('Top Pics');
+	self.currentTitle = ko.observable('Top Picks');
 
 	self.clone = ko.computed(function(){
 		self.currentList(self.arrayOfArrays()[self.currentSelection()]())

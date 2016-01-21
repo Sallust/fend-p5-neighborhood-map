@@ -3,6 +3,12 @@ body {
   padding-top: 50px;
   padding-bottom: 20px;
 }
+
+.my-nav {
+	background-image: linear-gradient(to bottom, #78909c 0%, #546e7a 100%);
+	border-color: #455a64;
+}
+
 .row {
 	height: 100%;
 }
@@ -18,7 +24,19 @@ body {
 
 
 .filter-checkbox {
-	margin: 0 0 20px 40px;
+	margin: 10px 0 10px 20px;
+}
+
+
+/* Left Sidebar Styles */
+
+#sidebar-wrapper {
+	background: #cfd8dc;
+}
+.my-input {
+	width: 75%;
+	margin: 0 auto;
+
 }
 
 .img-div {
@@ -45,17 +63,23 @@ body {
 	min-height: 1px;
 }
 .sidebar-brand {
-	height: 65px;
-    font-size: 18px;
-    line-height: 60px;
-    text-indent: 20px;
+	font-size: 20px;
+	line-height: 50px;
+	text-align: center;
+}
+.directions {
+	color: #999;
+	font-size: 15px;
+	line-height: 15px;
+	text-align: center;
 }
 .place-name {
 	display: block;
     text-decoration: none;
-    color: #999999;
+    color: #ffff00;
     text-indent: 20px;
     line-height: 40px;
+    text-shadow: 0 -1px 0 blue;
 }
 
 .place-name:hover {
@@ -86,9 +110,14 @@ body {
 	transition: all 0.5 ease;
 }
 
+hr {
+	border: 1px solid #78909c;
+	margin: 10px 0;
+}
 
 
 
+/* InfoWindow Styles */
 
 .infowindow-image {
 	float: left;
@@ -104,19 +133,38 @@ h4 {
 	margin: 8px;
 }
 
+/* Additional Filter Categories Styles */
+
+.radio-heading {
+	display:none;
+	color: #999;
+	margin: 12px auto;
+	text-align: center;
+	width: 100%;
+}
+
+.radio-hr {
+	display: none;
+	border-top: 1px solid #101010;
+}
+
+
+#radio-button-bar {
+	display: none;
+}
+
 #radio {
 	margin: auto 3px;
 	flex-grow: 1;
 }
 
-#radio-button-bar {
-	display: none;
-}
+
 .radio-button {
 	margin: 18px 2px 18px 18px;
 	color: #999;
 	flex-grow: 1;
 	transition: all 0.5 ease;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
 }
 
 .radio-button:hover,
@@ -125,13 +173,21 @@ h4 {
 	color: #fff;
 }
 
+/*   Responsive Styles Radio Button bar and size of sidebar columns */
 
-@media screen and (max-width: 768px) {
-	#radio-button-bar{
+
+@media screen and (max-width: 767px) {
+	#radio-button-bar {
 		display: block;
 		display: flex;
 		flex-wrap: wrap;
 	}
+
+	.radio-hr,
+	.radio-heading {
+		display:block;
+	}
+
 	.side-25 {
 		width: 34%;
 		padding: 0 15px;
@@ -141,5 +197,6 @@ h4 {
 		width: 64%;
 		padding: 0 15px;
 	}
+
 
 }

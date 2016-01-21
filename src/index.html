@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top my-nav">
         <div class="container">
             <div class="navbar-header">
                   <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -23,12 +23,11 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <div class="navbar-form navbar-right">
-                    <div class="form-group">
-                        <input type="text" placeholder="Type Search Here" class="form-control" data-bind="textInput: currentFilter">
-                    </div>
                     <div data-bind="foreach: arrayOfArrays " class="form-group">
                         <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray()[$index()]"class="btn btn-success">Sign in</button>
                     </div>
+                    <hr class="radio-hr">
+                    <h3 class="radio-heading">Filter by additional categories below!</h3>
                     <li id="radio-button-bar" data-bind="foreach: uniqueCategories">
                         <span class="radio-button" data-bind="text: $data">I'm text</span>
                         <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}" id="radio" >
@@ -45,9 +44,15 @@
         <div id="sidebar-wrapper">
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a data-bind="text: currentTitle" href="#">
-                        List of Attractions
+                    <a href="#"> Showing you
+                        <span data-bind="text: currentTitle"></span>
+                        in Charlottesville, VA!
                     </a>
+                    <p class="directions">Choose another category above or filter current results</p>
+
+                </li>
+                <li>
+                    <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter">
                 </li>
                 <label class="filter-checkbox">
                     <input type='checkbox' data-bind='checked: showFilter'  />
@@ -59,6 +64,7 @@
 
 
                 </li>
+                <hr>
                 <!--ko foreach: { data: filteredPlaces, beforeRemove: slideAway, afterRender: fade }  -->
                     <li>
                         <div class="row place-entry">
@@ -88,7 +94,7 @@
                         </div>
 
 
-
+                    <hr>
                     </li>
                 <!-- /ko -->
             </ul>

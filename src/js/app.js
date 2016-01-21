@@ -157,21 +157,24 @@ var MapFunc = {
 	setInfoWindow: function(marker) {
 		this.infoWindow.setContent(marker.infoWindowContent);
 		this.infoWindow.open(this.map, marker);
+	},
+	setInfoWindowContent: function(place) {
+		place.marker.infoWindowContent = " <img src='" + place.photoUrl + "' class='infowindow-image' alt='place photo'>" +  "<h4>" + place.name + "</h4>" + "<p>" + place.phone + "</p>" + "<span class='rating'>" + place.rating() + "</span>"  +    "<a href='" + place.website + "'> " + place.website + "</a>" ; //stored as property of marker for easy referenec at call time
 	}
   }
 
 var Place = function(placeData) {
-	//console.log(placeData.types);
-	//console.log(placeData);
+
+	console.log(placeData);
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
 	//this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
 	//this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
+	this.rating = ko.observable(placeData.rating || 2.5);
 
 	this.photoUrl = Model.getPhoto(this, placeData.photos);
-	//this.photoUrl = placeData.photos ? ( placeData.photos.getUrl ? placeData.photos[0].getUrl({'maxWidth':65, 'maxHeight':65}) : "http://lorempixel.com/65/65/city" ) : "http://lorempixel.com/65/65/city";
 
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
@@ -189,13 +192,16 @@ var Place = function(placeData) {
 
 	this.showReviews = ko.observable(false);
 
+	MapFunc.setInfoWindowContent(this);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
 	})
+
+
 }
 
-	//place.marker.infoWindowContent = "<h2>" + place.name + "</h2>" + "<p>" + place.website + "</p>"; //stored as property of marker for easy referenec at call time
+	//this.marker.infoWindowContent =
 
 
 var ViewModel = function() {

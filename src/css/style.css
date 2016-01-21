@@ -16,6 +16,29 @@ body {
 
 }
 
+.img-div {
+	margin: 0 15px;
+	border-radius: 15px;
+	width: 100%;
+}
+.place-entry {
+
+}
+.side-25 {
+	width: 25%;
+	float: left;
+	position: relative;
+	padding: 0 15px;
+	min-height: 1px;
+}
+
+.side-75 {
+	width: 75%;
+	float: right;
+	position: relative;
+	padding: 0 15px;
+	min-height: 1px;
+}
 .sidebar-brand {
 	height: 65px;
     font-size: 18px;
@@ -40,9 +63,75 @@ body {
 .place-name:focus{
 	text-decoration: none;
 }
+.rating-large {
+	float: right;
+	display: inline;
+	margin: 0 10px 0 0;
+	padding: 20px;
+	background: blue;
+	color: #fff;
+	border-radius: 25px;
+	transform: translate( 0px, -40px);
+}
 
 .reviews {
 	line-height: 18px;
 	text-decoration: none;
 	padding: 0 0.5em 0 0
+}
+
+
+
+
+
+.infowindow-image {
+	float: left;
+}
+
+h4 {
+	display: inline;
+}
+
+.rating {
+	display: inline;
+	float: right;
+	margin: 8px;
+}
+
+#radio {
+	margin: auto 0;
+}
+
+#radio-button-bar {
+	display: none;
+}
+.radio-button {
+	padding: 10px;
+	color: #999;
+	flex-grow: 1;
+}
+
+.radio-button:hover,
+.radio-button:active,
+.radio-button:focus {
+	padding: 10px;
+	color: #fff;
+}
+
+
+@media screen and (max-width: 768px) {
+	#radio-button-bar{
+		display: block;
+		display: flex;
+	}
+	.side-25 {
+		width: 34%;
+		padding: 0 15px;
+	}
+
+	.side-75 {
+		width: 64%;
+		padding: 0 15px;
+	}
+
 }

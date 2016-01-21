@@ -281,6 +281,8 @@ var ViewModel = function() {
 		return ko.utils.arrayGetDistinctValues(array)
 	})
 
+	self.showFilter = ko.observable(false);
+
 	self.slideAway = function(element, index, data) {
 		$(element).filter('li').slideUp(function() {
 			$(element).remove();

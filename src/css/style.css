@@ -16,6 +16,11 @@ body {
 
 }
 
+
+.filter-checkbox {
+	margin: 0 0 20px 40px;
+}
+
 .img-div {
 	margin: 0 15px;
 	border-radius: 15px;
@@ -77,7 +82,8 @@ body {
 .reviews {
 	line-height: 18px;
 	text-decoration: none;
-	padding: 0 0.5em 0 0
+	padding: 0 0.5em 0 0;
+	transition: all 0.5 ease;
 }
 
 
@@ -99,22 +105,23 @@ h4 {
 }
 
 #radio {
-	margin: auto 0;
+	margin: auto 3px;
+	flex-grow: 1;
 }
 
 #radio-button-bar {
 	display: none;
 }
 .radio-button {
-	padding: 10px;
+	margin: 18px 2px 18px 18px;
 	color: #999;
 	flex-grow: 1;
+	transition: all 0.5 ease;
 }
 
 .radio-button:hover,
 .radio-button:active,
 .radio-button:focus {
-	padding: 10px;
 	color: #fff;
 }
 
@@ -123,6 +130,7 @@ h4 {
 	#radio-button-bar{
 		display: block;
 		display: flex;
+		flex-wrap: wrap;
 	}
 	.side-25 {
 		width: 34%;

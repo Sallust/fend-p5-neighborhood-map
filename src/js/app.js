@@ -48,7 +48,8 @@ var Model = {
 				//MapFunc.getInitialData(resultName, categoryArrayName,categoryLocalStorage)
 			};
 		}).fail(function() {
-			//Something clever to happen when foursquare fails
+			Model[category](["Public Fish & Oyster", "Continental Divide", "Albemarle Baking Company", "The Whiskey Jar", "Revolutionary Soup"]);
+			alert("Foursquare Issue... Oh No! Showing you the results from 1/22/2016. Try reloading in a minute");
 		})
 
 	},

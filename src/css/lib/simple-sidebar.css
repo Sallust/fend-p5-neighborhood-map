@@ -58,13 +58,9 @@
     padding: 0;
     list-style: none;
     transition: all 0.5s ease;
+    direction: ltr
 }
 
-.sidebar-nav li a {
-    display: block;
-    text-decoration: none;
-    color: #999999;
-}
 
 .sidebar-nav li a:hover {
     text-decoration: none;
@@ -78,7 +74,7 @@
 }
 
 .sidebar-nav > .sidebar-brand a {
-    color: #999999;
+    color: #263238;
 }
 
 .sidebar-nav > .sidebar-brand a:hover {

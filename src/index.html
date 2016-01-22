@@ -105,7 +105,8 @@
 
 
         <div class="container-fluid">
-            <div id="map">I will grow up to be a map
+            <div id="map">
+                Meow!!
             </div>
 
         </div>
@@ -120,10 +121,15 @@
         MapFunc.init();
         Model.init();
        // ko.applyBindings(new ViewModel())
-    }</script>
+    }
+    function googleFail() {
+        alert("Computer says No! Google Maps didn't load properly. Try reloading the page in a little bit. Here's a picture of a kitten to make you feel better")
+        $('#map').append('<img src="http://lorempixel.com/500/800/cats" style="height:100%;">')
+    }
+    </script>
 
     <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG3IGYJ-z-wlGRpLr6sBEF_Ls9z4ZNDig&libraries=places&callback=googleSuccess">
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG3IGYJ-z-wlGRpLr6sBEF_Ls9z4ZNDig&libraries=places&callback=googleSuccess" onerror="googleFail()">
       </script>
 
 

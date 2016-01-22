@@ -47,6 +47,8 @@ var Model = {
 				Model[category]().push(resultName)
 				//MapFunc.getInitialData(resultName, categoryArrayName,categoryLocalStorage)
 			};
+		}).fail(function() {
+			//Something clever to happen when foursquare fails
 		})
 
 	},

@@ -4,89 +4,107 @@ var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "
 
 var markerIconArray = ['img/top_picks.png', 'img/restaurant.png', 'img/drinks.png', 'img/coffee.png', 'img/arts.png']
 
+/**
+* @description Organizes data required for project encapsulates
+*/
 var Model = {
-	resultsLimit: 5,
-	topPicksPlaceArray: ko.observableArray(),
+	resultsLimit: 5, // results limit of Foursquare return
+	topPicksPlaceArray: ko.observableArray(), //set as property so variable is available to ViewModel on initial run
+	/**
+	* @description Called on successful map load, sets up data structured e names
+	*/
 	init: function() {
-		var parent = this;
 		var self = this;
 
-		this.getData('topPicks', topPicks);
 		categories.forEach(function(category){
 			var categoryArrayName = category + "PlaceArray";
-
-			self[category] = ko.observableArray(); //simple list of place names from foursquare
-			self[categoryArrayName] = ko.observableArray(); //future home of place data
-			vm.arrayOfArrays.push(parent[categoryArrayName])
-			if(self[category]().length == 0) {
-				self.getFoursquareList(category, self[categoryArrayName])
+			self[category] = ko.observableArray(); // will hold array of place names from foursquare API call
+			self[categoryArrayName] = ko.observableArray(); //will hold array of place objects
+			vm.arrayOfArrays.push(self[categoryArrayName]) //pushes array to ViewModel 'mother array' so vm can easily access data
+			if(self[category]().length == 0) {  //only make Foursquare call when array holding foursquare results is empty
+				self.getFoursquareList(category)
 			}
 
 		})
 
+		this.getData('topPicks', topPicks); //makes call to get Data for Top Picks for initial page load
+
+
 	},
+	/**
+	* @description Makes call to get data from localStorage if available, otherwise makes call to get Google data
+	* @param {string} category - Name of the category
+	* @param {array} placeNameList - Simple array of place names
+	*/
 	getData: function(category, placeNameList) {
 		var categoryArrayName = category + "PlaceArray";
 		var categoryLocalStorage = category + "LocalStorage"
-		//console.log(categoryLocalStorage);
-		if (!localStorage[categoryLocalStorage]) {
+		if (!localStorage[categoryLocalStorage]) { // checks only this category to see if exists in Local Storage 
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
 			})
 		} else {
-			Model.populateFromLocalStorage(category, categoryArrayName);
+			Model.populateFromLocalStorage(category, categoryArrayName); 
 		}
 	},
-	getFoursquareList: function(category, categoryArrayName) {
+	/**
+	* @description Makes call to foursquare API, on fail supplies results from an earlier load
+	* @param {string} category - Name of the category
+	*/
+	getFoursquareList: function(category) {
 		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20150826&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
-		var categoryLocalStorage = category + "LocalStorage";
 		var category = category;
 		$.getJSON(foursquareAPI, function(data) {
 			for (var i = 0; i < data.response.groups[0].items.length; i++) {
-				console.log(data.response.groups[0].items[i].venue.name + " " +  category)
 				var resultName = data.response.groups[0].items[i].venue.name;
-				console.log(category);
 				Model[category]().push(resultName)
-				//MapFunc.getInitialData(resultName, categoryArrayName,categoryLocalStorage)
 			};
 		}).fail(function() {
 			Model[category](["Public Fish & Oyster", "Continental Divide", "Albemarle Baking Company", "The Whiskey Jar", "Revolutionary Soup"]);
 			alert("Foursquare Issue... Oh No! Showing you the results from 1/22/2016. Try reloading in a minute");
 		})
-
 	},
+	/**
+	* @description Uses name of category to look in LocalStorage and convert string to a useable array
+	* @param {string} category - Name of the category
+	* @returns {array} category - Array containing placeIDs of one category's places
+	*/
+	getPlaceIdArray: function(category) {
+		var nameStr = category + "LocalStorage"
+		if(!localStorage[nameStr]){ //if an error prevented string of placeIDs being saved, possible in rare instances after a Google over query limit issue 
+			return []
+		} else {
+			var str = localStorage[nameStr].slice(0,-1); //remove trailing comma 
+			return str.split(',') //generates array from long string of place ID's
+		}
+	},
+	/**
+	* @description Called by get Data, uses category's placeID array to access saved PlaceData from google
+	* @param {string} category - Name of the category
+	* @param {string} categoryArrayName - Array to hold names of foursquare results
+	*/
 	populateFromLocalStorage: function(category, categoryArrayName) {
-		var self = Model;
-		var placeIdArray = self.getPlaceIdArray(category);
-			//console.log(placeIdArray);
+		var placeIdArray = Model.getPlaceIdArray(category);
 	 		placeIdArray.forEach(function(placeId){
-				//console.log(placeId);
-				//console.log(localStorage[placeId]);
-				//console.log(JSON.parse(localStorage[placeId]));
-				self[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId])))
-				//parent.getLocalStorageData(placeId, parent.initialData);
+				Model[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId]))) // data is parsed from string to object similar to initial google placeData object 
 			})
 
 	},
-	getPlaceIdArray: function(category) {
-		var nameStr = category + "LocalStorage"
-		if(!localStorage[nameStr]){
-			return []
-		} else {
-			var str = localStorage[nameStr].slice(0,-1);
-			return str.split(',')
-		}
-
-	},
+	/**
+	* @description Called on callback of placeData from google, creates placeID: placeData string within local storage, also creates a list of placeIDs for each category
+	* @param {object} results - placeData object returned from Google
+	* @param {string} category - Name of the category
+	*/
 	saveInLocalStorage: function(results, category) {
 		var resultsString = (JSON.stringify(results))
-		localStorage.setItem(results.place_id, resultsString);
-		//console.log(category);
-		//console.log(localStorage[category])
+		localStorage.setItem(results.place_id, resultsString); // stringified placeData set to key
 		var placeIdList = ( localStorage[category] || '' ) + results.place_id + ','
 		localStorage.setItem( category , placeIdList )
-		//placeDataArray.push( new Place(results[0]));
 	},
+	/**
+	* @description Called by place contructor, gets wiki url replacing an empty string if successful
+	* @param {object} placeObj - Place Object
+	*/
 	getWikiUrl: function(placeObj) {
 		var place = placeObj;
 		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json'
@@ -99,7 +117,12 @@ var Model = {
 			}
 		})
 	},
-	getPhoto: function(placeObj, photoData) {
+	/**
+	* @description Called by constructor, gets photoUrl from placeData object or from  LocalStorage
+	* @param {}  - 
+	* @param {}  - 
+	*/
+	getPhotoUrl: function(placeObj, photoData) {
 		var place = placeObj
 		if(!photoData) {
 			return "http://lorempixel.com/65/65/nightlife/" + Math.floor(Math.random()*10) ;
@@ -112,10 +135,20 @@ var Model = {
 			return photoUrl;
 		}
 	},
+	/**
+	* @description 
+	* @param {}  - 
+	* @param {}  - 
+	*/
 	savePhotoinLocalStorage: function(photoUrl, placeID) {
 		var keyName = placeID + "photo"
 		localStorage.setItem( keyName, photoUrl)
 	},
+	/**
+	* @description 
+	* @param {}  - 
+	* @param {}  - 
+	*/
 	makeButtonList: function(categoriesArray) {
 		var array = ['Top Picks'];
 		for (var i = 0; i < categoriesArray.length; i++) {
@@ -123,10 +156,7 @@ var Model = {
 			array.push(capitalizedCategory);
 		};
 		return array;
-
 	}
-
-
 }
 
 var MapFunc = {
@@ -179,7 +209,7 @@ var MapFunc = {
 
 var Place = function(placeData) {
 
-	//console.log(placeData);
+	console.log(placeData);
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
@@ -188,7 +218,7 @@ var Place = function(placeData) {
 	this.location = placeData.geometry.location;
 	this.rating = ko.observable(placeData.rating || 2.5);
 
-	this.photoUrl = Model.getPhoto(this, placeData.photos);
+	this.photoUrl = Model.getPhotoUrl(this, placeData.photos);
 
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({

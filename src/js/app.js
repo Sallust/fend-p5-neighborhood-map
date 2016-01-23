@@ -2,6 +2,8 @@ var categories = ["food","drinks", "coffee", "arts"]
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
 
+var markerIconArray = ['img/top_picks.png', 'img/restaurant.png', 'img/drinks.png', 'img/coffee.png', 'img/arts.png']
+
 var Model = {
 	resultsLimit: 5,
 	topPicksPlaceArray: ko.observableArray(),
@@ -26,7 +28,7 @@ var Model = {
 	getData: function(category, placeNameList) {
 		var categoryArrayName = category + "PlaceArray";
 		var categoryLocalStorage = category + "LocalStorage"
-		console.log(categoryLocalStorage);
+		//console.log(categoryLocalStorage);
 		if (!localStorage[categoryLocalStorage]) {
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
@@ -177,7 +179,7 @@ var MapFunc = {
 
 var Place = function(placeData) {
 
-	console.log(placeData);
+	//console.log(placeData);
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
@@ -192,7 +194,8 @@ var Place = function(placeData) {
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,
 		//map: MapFunc.map,
-		animation: google.maps.Animation.DROP
+		animation: google.maps.Animation.DROP,
+		icon: 'img/top_picks.png'
 	})
 	this.wikiURL = ko.observable('');
 
@@ -220,7 +223,7 @@ var ViewModel = function() {
 	var self = this;
 	self.arrayOfArrays = ko.observableArray();
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
-	self.currentSelection = ko.observable(0);
+	self.currentIndex = ko.observable(0);
 
 	self.buttonArray = ko.observableArray(Model.makeButtonList(categories));
 
@@ -230,12 +233,19 @@ var ViewModel = function() {
 	self.currentTitle = ko.observable('Top Picks');
 
 	self.clone = ko.computed(function(){
-		self.currentList(self.arrayOfArrays()[self.currentSelection()]())
+		self.currentList(self.arrayOfArrays()[self.currentIndex()]())
 	})
+
+
 
 	self.currentFilter = ko.observable('');
 
-	self.categoryToShow = ko.observable('')
+	self.categoryToShow = ko.observable('');
+
+
+	self.markerIcon = ko.computed(function() {
+		return markerIconArray[self.currentIndex()]
+	})
 
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();
@@ -252,22 +262,33 @@ var ViewModel = function() {
 		}
 	})
 
+
+
 	self.setCurrentList = function(index, thisArray) {
 		self.categoryToShow('');
 		self.clearMarkers();
 
-		self.currentSelection(index);
+		self.currentIndex(index);
+
 		self.currentTitle (self.buttonArray()[index]);
 		if(this.length == 0) {
 			var category = categories[index - 1];
 			Model.getData(category, Model[category]());
 		}
-
+		self.setMarkerIcon();
 	}
 
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
+		})
+	}
+	self.setMarkerIcon = function() {
+			console.log(self.markerIcon())
+			console.log(self.currentList())
+		self.currentList().forEach(function(place) {
+			place.marker.setIcon(self.markerIcon());
+			console.log(self.markerIcon())
 		})
 	}
 	self.currentMarkers = ko.computed ( function() {

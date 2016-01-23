@@ -119,14 +119,17 @@ var Model = {
 	},
 	/**
 	* @description Called by constructor, gets photoUrl from placeData object or from  LocalStorage
-	* @param {}  - 
-	* @param {}  - 
+	* @description Deals with the loss of function getURL when stringifying and parsing placeData obj
+	* @param {object} placeObj - the place object
+	* @param {array} photoData - the photo property of the placeData from google or LocalStorage
 	*/
 	getPhotoUrl: function(placeObj, photoData) {
 		var place = placeObj
-		if(!photoData) {
+		if(typeof photoData == "undefined") {
 			return "http://lorempixel.com/65/65/nightlife/" + Math.floor(Math.random()*10) ;
-		} else if (!photoData[0].getUrl) {
+		}
+		var isFromLocalStorage = !photoData[0].getUrl; //getUrl is a method lost in the LocalStorage obj
+		if (isFromLocalStorage) {  
 			var keyName = place.placeID + "photo"
 			return localStorage[keyName];
 		} else {
@@ -136,152 +139,173 @@ var Model = {
 		}
 	},
 	/**
-	* @description 
-	* @param {}  - 
-	* @param {}  - 
+	* @description generates a key in localStorage to save photoURL, and saves it there
+	* @param {string} photoUrl -  initial photo URL result from getURL method
+	* @param {string} placeID - 
 	*/
 	savePhotoinLocalStorage: function(photoUrl, placeID) {
 		var keyName = placeID + "photo"
 		localStorage.setItem( keyName, photoUrl)
 	},
 	/**
-	* @description 
-	* @param {}  - 
-	* @param {}  - 
+	* @description generates stylized names for buttons from initial category array
+	* @returns {array}  - Stylized Names for buttons
 	*/
-	makeButtonList: function(categoriesArray) {
+	makeButtonList: function() {
 		var array = ['Top Picks'];
-		for (var i = 0; i < categoriesArray.length; i++) {
-			var capitalizedCategory = categoriesArray[i][0].toUpperCase() + categoriesArray[i].slice(1);
+		for (var i = 0; i < categories.length; i++) {
+			var capitalizedCategory = categories[i][0].toUpperCase() + categories[i].slice(1);
 			array.push(capitalizedCategory);
 		};
 		return array;
 	}
 }
-
+/**
+* @description Google Map & Library API calls
+*/
 var MapFunc = {
 	mapOptions: {
 		center: {lat: 38.031, lng: -78.486},
     	zoom: 12,
     	disableDefaultUI: true
   	},
+  	/**
+	* @description Called on successful google map script load, initiates coordinates, map, service, and ONE infoWindow
+	*/
 	init: function () {
 		this.coordinates = new google.maps.LatLng(38.031,-78.486)
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
-
 	},
-
+	/**
+	* @description called when local storage for category doesn't exist
+	* @param {string} placeName -  string to be sent to google, either from the array from foursquare or the hard coded Top List
+	* @param {array} placeDataArray - array that will house new place objs
+	* @param {string} category  -  e.g. foodLocalStorage
+	*/
 	getInitialData: function(placeName, placeDataArray, category) {
-		function callback (results, status) {
-			//console.log("init" + status)
-			if (status == google.maps.places.PlacesServiceStatus.OK) {
-
-				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray, category);
-	    	}
-    	}
     	var request = {
     		location: this.coordinates,
     		radius: 1000,
     		query: placeName
     	}
-		this.service.textSearch(request, callback)
+		this.service.textSearch(request, function(results, status) {
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray, category);
+	    	}
+    	})
 	},
+	/**
+	* @description takes place ID from first google api call and requests detailed info. Both saves it in local storage and uses it to initiate new place obj
+	* @param {string} placeID   
+	* @param {array} placeDataArray 
+	* @param {string} category 
+	*/
 	getGoogleDetails: function(placeID, placeDataArray, category) {
-		function detailsCallback (results, status) {
-			console.log("detail" + status);
+		MapFunc.service.getDetails({placeId: placeID}, function(results, status) { //callback as an anonymous function
+			console.log("Result from google api request:" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				placeDataArray.push( new Place(results));
-				Model.saveInLocalStorage(results, category)
+				Model.saveInLocalStorage(results, category) 
   			}
-		}
-		MapFunc.service.getDetails({placeId: placeID}, detailsCallback );
+		});
 	},
+	/**
+	* @description Opens InfoWindow; Called by Marker click listener And click on sidebar place name
+	* @param {obj} marker -  the google marker object
+	*/
 	setInfoWindow: function(marker) {
 		this.infoWindow.setContent(marker.infoWindowContent);
-		this.infoWindow.open(this.map, marker);
+		this.infoWindow.open(this.map, marker); 
 	},
+	/**
+	* @description Called by Place constructor, uses place properties to complete the info Window string
+	* @param {obj} place -  the place obj
+	*/
 	setInfoWindowContent: function(place) {
 		place.marker.infoWindowContent = " <img src='" + place.photoUrl + "' class='infowindow-image' alt='place photo'>" +  "<h4>" + place.name + "</h4>" + "<p>" + place.phone + "</p>" + "<span class='rating'>" + place.rating() + "</span>"  +    "<a href='" + place.website + "'> " + place.website + "</a>" ; //stored as property of marker for easy referenec at call time
 	}
   }
-
+/**
+* @description Constructs each place, sets marker, and makes a wiki api call
+* @constructor 
+* @param {obj} placeData -  either the google obj or very similar localStorage obj from earlier load
+*/
 var Place = function(placeData) {
-
-	console.log(placeData);
 	this.placeID = placeData.place_id;
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
-	//this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat();
-	//this.lng = placeData.geometry.location.lat || placeData.geometry.location.lng();
 	this.location = placeData.geometry.location;
-	this.rating = ko.observable(placeData.rating || 2.5);
-
+	this.rating = ko.observable(placeData.rating || 3.9);
 	this.photoUrl = Model.getPhotoUrl(this, placeData.photos);
-
-	this.typesArray = placeData.types;
+	this.typesArray = placeData.types; 
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,
-		//map: MapFunc.map,
 		animation: google.maps.Animation.DROP,
-		icon: 'img/top_picks.png'
+		icon: 'img/top_picks.png' //this is only the initial value
 	})
-	this.wikiURL = ko.observable('');
-
-	Model.getWikiUrl(this);
-
+	this.wikiURL = ko.observable(''); //either silently fails and remains an empty string, or changes upon wiki callback
+	Model.getWikiUrl(this); 
 	this.reviewsArray = placeData.reviews;
 	this.phone = placeData.formatted_phone_number;
 	this.website = placeData.website || "No Website Given";
-
-	this.showReviews = ko.observable(false);
-
-	MapFunc.setInfoWindowContent(this);
+	this.showReviews = ko.observable(false); //whether or not to display the reviews of this place
+	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
 	})
-
-
 }
 
-	//this.marker.infoWindowContent =
-
+/**
+* @description The View Model
+*/
 
 var ViewModel = function() {
 	var self = this;
-	self.arrayOfArrays = ko.observableArray();
+	self.arrayOfArrays = ko.observableArray(); //the 'mother array' holding arrays of place data
 	self.arrayOfArrays.push(Model.topPicksPlaceArray);
-	self.currentIndex = ko.observable(0);
 
-	self.buttonArray = ko.observableArray(Model.makeButtonList(categories));
+	self.currentList = ko.observableArray([]); //current array of places
+	self.currentIndex = ko.observable(0); //subscribers : currentList & setMarkerIcon
 
-
-	self.currentList = ko.observableArray([]);
-
-	self.currentTitle = ko.observable('Top Picks');
-
-	self.clone = ko.computed(function(){
+	self.buttonArray = Model.makeButtonList();
+	/**
+	* @description Maintains current List as the desired array within the array of arrays 
+	*/
+	self.copy = ko.computed(function(){
 		self.currentList(self.arrayOfArrays()[self.currentIndex()]())
 	})
 
 
+	self.currentTitle = ko.observable('Top Picks'); //bound to span above place results
 
-	self.currentFilter = ko.observable('');
+	self.currentFilter = ko.observable('');//bound to text Input
 
-	self.categoryToShow = ko.observable('');
+	self.categoryToShow = ko.observable(''); //bound to radio buttons: the selected category (from the additional filter categories )
+
+	self.showFilter = ko.observable(false);//bound to checkbox
 
 
+	/**
+	* @description changes the current marker icon
+	* @returns {string} - the file path to the current marker icon 
+	*/
 	self.markerIcon = ko.computed(function() {
 		return markerIconArray[self.currentIndex()]
 	})
+	/**
+	* @description filters results 
+	* subscribes to: current Filter & categoryToShow
+	* @returns {array} - array of filtered place results
+	*/
 
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();
 		if(!filter && !self.categoryToShow()) {  //if there is nothing being typed in the filter AND no selcted category
 			return self.currentList()
-		} else if (filter) {
+		} else if (filter) { //supercedes category section
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
 				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
 			})
@@ -292,42 +316,53 @@ var ViewModel = function() {
 		}
 	})
 
+	/**
+	* @description Called on click of different Category Buttons
+	* @param {string} index-  called in a foreach loop, based on the index of the button clicked
+	*/
+	self.setCurrentList = function(index) {
+		self.categoryToShow(''); //reset category filter
+		self.currentFilter(''); //reset text filter value
+		self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
 
+		self.currentIndex(index); 
+		self.currentTitle (self.buttonArray[index]);//changes span above results
 
-	self.setCurrentList = function(index, thisArray) {
-		self.categoryToShow('');
-		self.clearMarkers();
-
-		self.currentIndex(index);
-
-		self.currentTitle (self.buttonArray()[index]);
-		if(this.length == 0) {
+		if(this.length == 0) { //when the category's place array is empty
 			var category = categories[index - 1];
 			Model.getData(category, Model[category]());
 		}
-		self.setMarkerIcon();
+		self.setMarkerIcon(); //changes markers of currentList AFTER change
 	}
-
+	/**
+	* @description Removes marker from maps
+	*/
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
 		})
 	}
+	/**
+	* @description Changes the marker icon based on currentIndex
+	*/
 	self.setMarkerIcon = function() {
-			console.log(self.markerIcon())
-			console.log(self.currentList())
 		self.currentList().forEach(function(place) {
 			place.marker.setIcon(self.markerIcon());
 			console.log(self.markerIcon())
 		})
 	}
+	/**
+	* @description Computes markers to be displayed
+	*/
 	self.currentMarkers = ko.computed ( function() {
 		self.clearMarkers();
 		self.filteredPlaces().forEach(function(place) {
 			place.marker.setMap(MapFunc.map)
 		})
 	});
-
+	/**
+	* @description On click of place Name, open InfoWindow
+	*/
 	self.setFocus = function() {
 		var marker = this.marker;
 		marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -336,129 +371,48 @@ var ViewModel = function() {
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
 	}
+	/**
+	* @description Generates the array bound to the additional filter categories
+	* @returns {array}  -  unique category values to use as additional filters
+	*/
 	self.uniqueCategories = ko.computed(function(){
 		var array = []
 		self.currentList().forEach(function(place){
-			array = array.concat(place.typesArray);
+			array = array.concat(place.typesArray); //a long array containing repeats of type categories
 		})
 		return ko.utils.arrayGetDistinctValues(array)
 	})
 
-	self.showFilter = ko.observable(false);
-
-	self.slideAway = function(element, index, data) {
+	/**
+	* @description Animation functions called by beforeRemove & afterRender listeners
+	* @param {DOM element} element -  DOM element to animate (and remove)
+	*/
+	self.slideAway = function(element) {
 		$(element).filter('li').slideUp(function() {
 			$(element).remove();
 		})
 	},
-	self.fade = function(element, index, data) {
+	self.fade = function(element) {
 		$(element).hide().fadeIn();
 	}
 
 }
-
+/**
+* @description Custom binding (adapted from knockout animation example)
+* @param {DOM element} element -  DOM element to animate (and remove)
+* @param {boolean} valueAccessor -   
+*/
 ko.bindingHandlers.fadeIn = {
     init: function(element, valueAccessor) {
-        // Initially set the element to be instantly visible/hidden depending on the value
         var value = valueAccessor();
-        $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+        console.log(value())
+        $(element).toggle(ko.unwrap(value)); 
     },
     update: function(element, valueAccessor) {
-        // Whenever the value subsequently changes, slowly fade the element in or out
-        var value = valueAccessor();
+        var value = valueAccessor();//either slide down or slide Up based on value
         ko.unwrap(value) ? $(element).slideDown("slow") : $(element).slideUp();
     }
 };
 
 var vm = new ViewModel();
 ko.applyBindings(vm);
-
-
-
-/*
-	var self = this;
-
-	self.listOfLists = ko.observableArray();
-	self.listOfLists.push(MapFunc.initialData())
-
-	console.log(MapFunc.initialData());
-
-	self.currentList = ko.observableArray();
-	self.currentList(MapFunc.initialData());
-
-
-	//self.currentList = ko.computed(function() {
-	//	console.log(MapFunc.initialData())
-	//	return MapFunc.initialData();//self.listOfLists()[0];
-	//})
-
-	MapFunc.init();
-	dynamicModel.init();
-
-
-
-	self.currentFilter = ko.observable('');
-
-	self.filteredPlaces = ko.computed(function() {
-		var filter = self.currentFilter().toLowerCase();
-		if(!filter) {
-			return self.currentList()
-		} else {
-			return ko.utils.arrayFilter(self.currentList(), function(place) {
-				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
-			})
-		}
-	})
-
-
-	self.currentMarkers = ko.computed ( function() {
-		self.currentList().forEach(function(place) {
-			place.marker.setMap(null);
-		})
-		self.filteredPlaces().forEach(function(place) {
-			place.marker.setMap(MapFunc.map)
-		})
-	});
-
-	self.catList = ko.observableArray([]);
-	console.log("I'm here")
-
-	initialCats.forEach(function(catItem){
-		self.catList.push( new Cat(catItem) );
-	});
-
-	self.currentCat = ko.observable( self.catList()[1] );
-
-	this.incrementCounter = function() {
-		this.clickCount(this.clickCount() + 1);
-	};
-	self.setCurrentCat = function() {
-		//console.log(self.currentCat())
-		self.currentCat ( this );
-	};
-	self.setFocus = function() {
-		var marker = this.marker;
-		marker.setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function(){
-			marker.setAnimation(null);
-		}, 1400);
-		MapFunc.setInfoWindow(marker);
-	}
-	self.setCurrentList = function() {
-
-	}
-
-	self.placeList = ko.observableArray([]);
-
-	topPicks.forEach(function(placeName) {
-		//self.textSearch({query:placeName}, function() {
-		})
-
-
-}
-//This now is called by google map success callback
-//ko.applyBindings(new ViewModel())
-
-//[Math.floor(this.clickCount / 10)
-
-*/

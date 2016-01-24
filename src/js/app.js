@@ -227,7 +227,7 @@ var MapFunc = {
 	* @param {obj} place -  the place obj
 	*/
 	setInfoWindowContent: function(place) {
-		place.marker.infoWindowContent = " <img src='" + place.photoUrl + "' class='infowindow-image' alt='place photo'>" +  "<h4>" + place.name + "</h4>" + "<p>" + place.phone + "</p>" + "<span class='rating'>" + place.rating() + "</span>"  +    "<a href='" + place.website + "'> " + place.website + "</a>" ; //stored as property of marker for easy referenec at call time
+		place.marker.infoWindowContent = " <img src='" + place.photoUrl + "' class='infowindow-image' alt='place photo'>" +  "<h4 class='info-title'>" + place.name + "</h4>" + "<p>" + place.phone + "</p>" + "<span class='rating'>" + place.rating() + "</span>"  +    "<a href='" + place.website + "'> " + place.website + "</a>" ; //stored as property of marker for easy referenec at call time
 	}
   }
 /**
@@ -251,7 +251,7 @@ var Place = function(placeData) {
 	this.wikiURL = ko.observable(''); //either silently fails and remains an empty string, or changes upon wiki callback
 	Model.getWikiUrl(this); 
 	this.reviewsArray = placeData.reviews;
-	this.phone = placeData.formatted_phone_number;
+	this.phone = placeData.formatted_phone_number || "703-555-1234";
 	this.website = placeData.website || "No Website Given";
 	this.showReviews = ko.observable(false); //whether or not to display the reviews of this place
 	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content

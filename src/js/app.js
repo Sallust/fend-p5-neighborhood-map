@@ -318,19 +318,22 @@ var ViewModel = function() {
 
 	/**
 	* @description Called on click of different Category Buttons
-	* @param {string} index-  called in a foreach loop, based on the index of the button clicked
+	* @param {string} index-  called in a foreach loop, the index of the button clicked
 	*/
 	self.setCurrentList = function(index) {
 		self.categoryToShow(''); //reset category filter
 		self.currentFilter(''); //reset text filter value
-		self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
+
+		if(self.currentIndex() != index) {
+			self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
+		}
 
 		self.currentIndex(index); 
 		self.currentTitle (self.buttonArray[index]);//changes span above results
 
 		if(this.length == 0) { //when the category's place array is empty
 			var category = categories[index - 1];
-			Model.getData(category, Model[category]());
+			Model.getData(category, Model[category]()); //initiate google search
 		}
 		self.setMarkerIcon(); //changes markers of currentList AFTER change
 	}
@@ -395,7 +398,6 @@ var ViewModel = function() {
 	self.fade = function(element) {
 		$(element).hide().fadeIn();
 	}
-
 }
 /**
 * @description Custom binding (adapted from knockout animation example)

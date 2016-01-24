@@ -177,6 +177,9 @@ var MapFunc = {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
+		window.addEventListener('resize', function(e) {
+  			MapFunc.map.setCenter(MapFunc.coordinates);
+		});
 	},
 	/**
 	* @description called when local storage for category doesn't exist

@@ -410,7 +410,6 @@ var ViewModel = function() {
 ko.bindingHandlers.fadeIn = {
     init: function(element, valueAccessor) {
         var value = valueAccessor();
-        console.log(value())
         $(element).toggle(ko.unwrap(value)); 
     },
     update: function(element, valueAccessor) {

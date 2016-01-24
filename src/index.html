@@ -77,7 +77,7 @@
                                 <a data-bind="text: name, click:$parent.setFocus" class="place-name" href="#"></a><span data-bind="text: rating(), style: { background: rating() < 4.5 ? 'blue' : 'green'}" class='rating-large'></span>
                                 <p data-bind="text: address"></p>
                                 <p data-bind="text: phone"> </p>
-                                <a data-bind="text: wikiURL"></a>
+                                <a href="#" data-bind="text: wikiURL, attr: {href: wikiURL}"></a>
                                 <label>
                                     <input type='checkbox' data-bind='checked: showReviews' />
                                     Show Reviews

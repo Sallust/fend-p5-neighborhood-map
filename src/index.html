@@ -24,16 +24,16 @@
             <div id="navbar" class="navbar-collapse collapse">
                 <div class="navbar-form navbar-right">
                     <div data-bind="foreach: arrayOfArrays " class="form-group">
-                        <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray[$index()]"class="btn btn-success">Sign in</button>
+                        <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray[$index()]" class="btn btn-success">Sign in</button>
                     </div>
                     <hr class="radio-hr">
                     <h3 class="radio-heading">Filter by additional categories below!</h3>
-                    <li id="radio-button-bar" data-bind="foreach: uniqueCategories">
+                    <div id="radio-button-bar" data-bind="foreach: uniqueCategories">
                         <span class="radio-button" data-bind="text: $data">I'm text</span>
                         <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}" id="radio" >
 
 
-                    </li>
+                    </div>
 
 
                 </div>
@@ -56,17 +56,17 @@
                 <li>
                     <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter">
                 </li>
-                <label class="filter-checkbox">
-                    <input type='checkbox' data-bind='checked: showFilter'  />
+                <li class="filter-checkbox">
+                    <input type='checkbox' data-bind='checked: showFilter'>
                     Show Additional Filters
-                </label>
+                </li>
                 <li id="radio-button-bar-2" data-bind="foreach: uniqueCategories, fadeIn: showFilter">
                     <span class="radio-button" data-bind="text: $data">I'm text</span>
-                    <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}" id="radio" >
+                    <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}">
 
 
                 </li>
-                <div class="divider"></div>
+                <li class="divider"></li>
                 <!--ko foreach: { data: filteredPlaces, beforeRemove: slideAway, afterRender: fade }  -->
                     <li>
                         <div class="row place-entry" data-bind="click:$parent.setFocus">

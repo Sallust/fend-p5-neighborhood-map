@@ -14,20 +14,20 @@
     <nav class="navbar navbar-inverse navbar-fixed-top my-nav">
         <div class="container">
             <div class="navbar-header">
-                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                  </button>
-                  <a class="navbar-brand" href="#">Neighborhood Map Project</a>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Neighborhood Map Project</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <div class="navbar-form navbar-right">
-                    <div data-bind="foreach: arrayOfArrays " class="form-group">
-                        <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray[$index()]" class="btn btn-success">Sign in</button>
+                    <div data-bind="foreach: arrayOfArrays " class="form-group btn-div">
+                        <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray[$index()]" class="btn btn-success my-btn">CategoryButton</button>
                     </div>
-                    <hr class="radio-hr">
+                    <div class="radio-divider"></div>
                     <h3 class="radio-heading">Filter by additional categories below!</h3>
                     <div id="radio-button-bar" data-bind="foreach: uniqueCategories">
                         <span class="radio-button" data-bind="text: $data">I'm text</span>
@@ -35,7 +35,7 @@
                     </div>
                 </div>
             </div>
-        </div><!--/.navbar-collapse -->
+        </div>
     </nav>
     <div id="wrapper">
         <div id="sidebar-wrapper">
@@ -45,10 +45,8 @@
                         <span data-bind="text: currentTitle"></span>
                         in Charlottesville, VA!
                     </a>
-
-                    <hr>
+                    <div class="divider"></div>
                     <p class="directions">Choose another category above or filter current results</p>
-
                 </li>
                 <li>
                     <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter" id="autocomplete">
@@ -77,20 +75,13 @@
                                     <input type='checkbox' data-bind='checked: showReviews' />
                                     Show Reviews
                                 </label>
-
-
                             </div>
-
-
                         </div>
                         <div class="row">
                             <ul data-bind="foreach: reviewsArray, fadeIn: showReviews">
                                 <li data-bind="text: text" class="reviews"></li>
                             </ul>
-
                         </div>
-
-
                     <div class="divider"></div>
                     </li>
                 <!-- /ko -->
@@ -121,9 +112,7 @@
 
     <script async defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAG3IGYJ-z-wlGRpLr6sBEF_Ls9z4ZNDig&libraries=places&callback=googleSuccess" onerror="googleFail()">
-      </script>
-
-
+    </script>
 
 </body>
 </html>

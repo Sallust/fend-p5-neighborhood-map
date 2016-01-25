@@ -52,3 +52,8 @@ gulp.task('lint', function() {
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
+
+gulp.task('watch', function() {
+    gulp.watch('src/index.html', ['optimize-stack']);
+});
+

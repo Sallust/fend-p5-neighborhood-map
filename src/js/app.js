@@ -408,17 +408,13 @@ var ViewModel = function() {
 		});
 
 	self.filteredNames = ko.computed(function() {
-		var array = []
+		var array = [];
 		self.filteredPlaces().forEach(function(place){
-			array.push(place.name)
-		})
+			array.push(place.name);
+		});
 		$( "#autocomplete" ).autocomplete( "option", "source", array );
 		return array;
-	})
-
-
-
-
+	});
 };
 /**
 * @description Custom binding (adapted from knockout animation example)
@@ -435,8 +431,6 @@ ko.bindingHandlers.fadeIn = {
         ko.unwrap(value) ? $(element).slideDown("slow") : $(element).slideUp();
     }
 };
-
-
 
 var vm = new ViewModel();
 ko.applyBindings(vm);

@@ -211,6 +211,10 @@ var MapFunc = {
 				placeDataArray.push( new Place(results));
 				Model.saveInLocalStorage(results, category);
   			}
+  			$('.my-btn').prop('disabled', true) //So requests to Google doesn't go over 10 query/second limit
+			setTimeout(function(){
+        		$('.my-btn').prop('disabled', false)
+    		}, 3000)
 		});
 	},
 	/**
@@ -336,7 +340,9 @@ var ViewModel = function() {
 			Model.getData(category, Model[category]()); //initiate google search
 		}
 		self.setMarkerIcon(); //changes markers of currentList AFTER change
+
 	};
+
 	/**
 	* @description Removes marker from maps
 	*/
@@ -351,7 +357,6 @@ var ViewModel = function() {
 	self.setMarkerIcon = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setIcon(self.markerIcon());
-			console.log(self.markerIcon());
 		});
 	};
 	/**

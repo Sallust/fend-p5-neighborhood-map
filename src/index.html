@@ -67,7 +67,7 @@
                                 <img src="" class="img-div" alt="place image" data-bind="attr: {src: photoUrl}">
                             </div>
                             <div class="side-75">
-                                <a data-bind="text: name" class="place-name" href="#"></a><span data-bind="text: rating(), style: { background: rating() < 4.5 ? '#0D47A1' : '#43A047'}, click: $parent.setFocus" class='rating-large'></span>
+                                <a data-bind="text: name, click: $parent.setFocus" class="place-name" href="#"></a><span data-bind="text: rating(), style: { background: rating() < 4.5 ? '#0D47A1' : '#43A047'}" class='rating-large'></span>
                                 <p data-bind="text: address"></p>
                                 <p data-bind="text: phone"> </p>
                                 <a href="#" data-bind="text: wikiURL, attr: {href: wikiURL}"></a>
@@ -80,6 +80,7 @@
                         <div class="row">
                             <ul data-bind="foreach: reviewsArray, fadeIn: showReviews">
                                 <li data-bind="text: text" class="reviews"></li>
+                                <hr>
                             </ul>
                         </div>
                     <div class="divider"></div>

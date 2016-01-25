@@ -31,6 +31,11 @@ body {
 }
 
 /* Left Sidebar Styles */
+.ui-autocomplete { /* Solution from stackoverflow */
+	position:absolute;
+	cursor:default;
+	z-index:1001 !important
+}
 
 #sidebar-wrapper {
 	background: #cfd8dc;

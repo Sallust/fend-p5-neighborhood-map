@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/lib/bootstrap.min.css">
     <link rel="stylesheet" href="css/lib/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/lib/simple-sidebar.css">
+    <link rel="stylesheet" href="css/lib/jquery-ui.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -31,11 +32,7 @@
                     <div id="radio-button-bar" data-bind="foreach: uniqueCategories">
                         <span class="radio-button" data-bind="text: $data">I'm text</span>
                         <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}" id="radio" >
-
-
                     </div>
-
-
                 </div>
             </div>
         </div><!--/.navbar-collapse -->
@@ -54,7 +51,7 @@
 
                 </li>
                 <li>
-                    <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter">
+                    <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter" id="autocomplete">
                 </li>
                 <li class="filter-checkbox">
                     <input type='checkbox' data-bind='checked: showFilter'>
@@ -63,8 +60,6 @@
                 <li id="radio-button-bar-2" data-bind="foreach: uniqueCategories, fadeIn: showFilter">
                     <span class="radio-button" data-bind="text: $data">I'm text</span>
                     <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}">
-
-
                 </li>
                 <li class="divider"></li>
                 <!--ko foreach: { data: filteredPlaces, beforeRemove: slideAway, afterRender: fade }  -->
@@ -100,20 +95,16 @@
                     </li>
                 <!-- /ko -->
             </ul>
-
         </div>
-
-
         <div class="container-fluid">
             <div id="map">
                 Meow!!
             </div>
-
         </div>
-
     </div>
 
     <script src="js/lib/jquery-2.2.0.min.js"></script>
+    <script src="js/lib/jquery-ui.min.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/knockout-3.4.0.js"></script>
     <script src="js/app.js"></script>

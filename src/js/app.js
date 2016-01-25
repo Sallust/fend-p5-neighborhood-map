@@ -280,7 +280,6 @@ var ViewModel = function() {
 		self.currentList(self.arrayOfArrays()[self.currentIndex()]());
 	});
 
-
 	self.currentTitle = ko.observable('Top Picks'); //bound to span above place results
 
 	self.currentFilter = ko.observable('');//bound to text Input
@@ -288,7 +287,6 @@ var ViewModel = function() {
 	self.categoryToShow = ko.observable(''); //bound to radio buttons: the selected category (from the additional filter categories )
 
 	self.showFilter = ko.observable(false);//bound to checkbox
-
 
 	/**
 	* @description changes the current marker icon
@@ -309,7 +307,7 @@ var ViewModel = function() {
 			return self.currentList();
 		} else if (filter) { //supercedes category section
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
-				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
+				return place.name.toLowerCase().includes(filter);      //returns true when letters match
 			});
 		} else {
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
@@ -400,6 +398,27 @@ var ViewModel = function() {
 	self.fade = function(element) {
 		$(element).hide().fadeIn();
 	};
+
+	/**
+	* @description Autocompletes input fields
+	* @param {array} filteredNames -  an array of the place names of the current list
+	*/
+	$("#autocomplete").autocomplete({
+	  		source: topPicks
+		});
+
+	self.filteredNames = ko.computed(function() {
+		var array = []
+		self.filteredPlaces().forEach(function(place){
+			array.push(place.name)
+		})
+		$( "#autocomplete" ).autocomplete( "option", "source", array );
+		return array;
+	})
+
+
+
+
 };
 /**
 * @description Custom binding (adapted from knockout animation example)
@@ -416,6 +435,8 @@ ko.bindingHandlers.fadeIn = {
         ko.unwrap(value) ? $(element).slideDown("slow") : $(element).slideUp();
     }
 };
+
+
 
 var vm = new ViewModel();
 ko.applyBindings(vm);

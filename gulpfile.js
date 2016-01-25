@@ -7,6 +7,7 @@ var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
 
 var htmlmin = require('gulp-htmlmin');
+var jshint = require('gulp-jshint');
 
 var del = require('del');
 
@@ -45,3 +46,9 @@ gulp.task('minify-html', function() {
 	}))
 	.pipe(gulp.dest('dist'));
 })
+
+gulp.task('lint', function() {
+    return gulp.src('src/js/app.js')
+        .pipe(jshint())
+        .pipe(jshint.reporter('default'));
+});

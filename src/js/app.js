@@ -1,8 +1,8 @@
-var categories = ["food","drinks", "coffee", "arts"]
+var categories = ["food","drinks", "coffee", "arts"];
 
 var topPicks = ["Jefferson Vineyards", "Monticello", "University of Virginia", "Downtown Mall", "Ash Lawn-Highland"];
 
-var markerIconArray = ['img/top_picks.png', 'img/restaurant.png', 'img/drinks.png', 'img/coffee.png', 'img/arts.png']
+var markerIconArray = ['img/top_picks.png', 'img/restaurant.png', 'img/drinks.png', 'img/coffee.png', 'img/arts.png'];
 
 /**
 * @description Organizes data required for project encapsulates
@@ -20,12 +20,12 @@ var Model = {
 			var categoryArrayName = category + "PlaceArray";
 			self[category] = ko.observableArray(); // will hold array of place names from foursquare API call
 			self[categoryArrayName] = ko.observableArray(); //will hold array of place objects
-			vm.arrayOfArrays.push(self[categoryArrayName]) //pushes array to ViewModel 'mother array' so vm can easily access data
-			if(self[category]().length == 0) {  //only make Foursquare call when array holding foursquare results is empty
-				self.getFoursquareList(category)
+			vm.arrayOfArrays.push(self[categoryArrayName]); //pushes array to ViewModel 'mother array' so vm can easily access data
+			if(self[category]().length === 0) {  //only make Foursquare call when array holding foursquare results is empty
+				self.getFoursquareList(category);
 			}
 
-		})
+		});
 
 		this.getData('topPicks', topPicks); //makes call to get Data for Top Picks for initial page load
 
@@ -38,31 +38,31 @@ var Model = {
 	*/
 	getData: function(category, placeNameList) {
 		var categoryArrayName = category + "PlaceArray";
-		var categoryLocalStorage = category + "LocalStorage"
-		if (!localStorage[categoryLocalStorage]) { // checks only this category to see if exists in Local Storage 
+		var categoryLocalStorage = category + "LocalStorage";
+		if (!localStorage[categoryLocalStorage]) { // checks only this category to see if exists in Local Storage
 			placeNameList.forEach(function(placeName){
 				MapFunc.getInitialData(placeName, Model[categoryArrayName], categoryLocalStorage);
-			})
+			});
 		} else {
-			Model.populateFromLocalStorage(category, categoryArrayName); 
+			Model.populateFromLocalStorage(category, categoryArrayName);
 		}
 	},
 	/**
 	* @description Makes call to foursquare API, on fail supplies results from an earlier load
 	* @param {string} category - Name of the category
 	*/
-	getFoursquareList: function(category) {
+	getFoursquareList: function(placeCategory) {
 		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20150826&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
-		var category = category;
+		var category = placeCategory;
 		$.getJSON(foursquareAPI, function(data) {
 			for (var i = 0; i < data.response.groups[0].items.length; i++) {
 				var resultName = data.response.groups[0].items[i].venue.name;
-				Model[category]().push(resultName)
-			};
+				Model[category]().push(resultName);
+			}
 		}).fail(function() {
 			Model[category](["Public Fish & Oyster", "Continental Divide", "Albemarle Baking Company", "The Whiskey Jar", "Revolutionary Soup"]);
 			alert("Foursquare Issue... Oh No! Showing you the results from 1/22/2016. Try reloading in a minute");
-		})
+		});
 	},
 	/**
 	* @description Uses name of category to look in LocalStorage and convert string to a useable array
@@ -70,12 +70,12 @@ var Model = {
 	* @returns {array} category - Array containing placeIDs of one category's places
 	*/
 	getPlaceIdArray: function(category) {
-		var nameStr = category + "LocalStorage"
-		if(!localStorage[nameStr]){ //if an error prevented string of placeIDs being saved, possible in rare instances after a Google over query limit issue 
-			return []
+		var nameStr = category + "LocalStorage";
+		if(!localStorage[nameStr]){ //if an error prevented string of placeIDs being saved, possible in rare instances after a Google over query limit issue
+			return [];
 		} else {
-			var str = localStorage[nameStr].slice(0,-1); //remove trailing comma 
-			return str.split(',') //generates array from long string of place ID's
+			var str = localStorage[nameStr].slice(0,-1); //remove trailing comma
+			return str.split(','); //generates array from long string of place ID's
 		}
 	},
 	/**
@@ -86,9 +86,8 @@ var Model = {
 	populateFromLocalStorage: function(category, categoryArrayName) {
 		var placeIdArray = Model.getPlaceIdArray(category);
 	 		placeIdArray.forEach(function(placeId){
-				Model[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId]))) // data is parsed from string to object similar to initial google placeData object 
-			})
-
+				Model[categoryArrayName].push( new Place(JSON.parse(localStorage[placeId]))); // data is parsed from string to object similar to initial google placeData object
+			});
 	},
 	/**
 	* @description Called on callback of placeData from google, creates placeID: placeData string within local storage, also creates a list of placeIDs for each category
@@ -96,10 +95,10 @@ var Model = {
 	* @param {string} category - Name of the category
 	*/
 	saveInLocalStorage: function(results, category) {
-		var resultsString = (JSON.stringify(results))
+		var resultsString = (JSON.stringify(results));
 		localStorage.setItem(results.place_id, resultsString); // stringified placeData set to key
-		var placeIdList = ( localStorage[category] || '' ) + results.place_id + ','
-		localStorage.setItem( category , placeIdList )
+		var placeIdList = ( localStorage[category] || '' ) + results.place_id + ',';
+		localStorage.setItem( category , placeIdList );
 	},
 	/**
 	* @description Called by place contructor, gets wiki url replacing an empty string if successful
@@ -107,7 +106,7 @@ var Model = {
 	*/
 	getWikiUrl: function(placeObj) {
 		var place = placeObj;
-		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json'
+		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json';
 
 		$.ajax({
 			url: wikiAPI,
@@ -115,7 +114,7 @@ var Model = {
 			success: function(data) {
 				place.wikiURL(data[3][0]);
 			}
-		})
+		});
 	},
 	/**
 	* @description Called by constructor, gets photoUrl from placeData object or from  LocalStorage
@@ -124,28 +123,28 @@ var Model = {
 	* @param {array} photoData - the photo property of the placeData from google or LocalStorage
 	*/
 	getPhotoUrl: function(placeObj, photoData) {
-		var place = placeObj
+		var place = placeObj;
 		if(typeof photoData == "undefined") {
 			return "http://lorempixel.com/65/65/nightlife/" + Math.floor(Math.random()*10) ;
 		}
 		var isFromLocalStorage = !photoData[0].getUrl; //getUrl is a method lost in the LocalStorage obj
-		if (isFromLocalStorage) {  
-			var keyName = place.placeID + "photo"
+		if (isFromLocalStorage) {
+			var keyName = place.placeID + "photo";
 			return localStorage[keyName];
 		} else {
-			var photoUrl = photoData[0].getUrl({'maxWidth':100, 'maxHeight':100})
-			this.savePhotoinLocalStorage(photoUrl,place.placeID)
+			var photoUrl = photoData[0].getUrl({'maxWidth':100, 'maxHeight':100});
+			this.savePhotoinLocalStorage(photoUrl,place.placeID);
 			return photoUrl;
 		}
 	},
 	/**
 	* @description generates a key in localStorage to save photoURL, and saves it there
 	* @param {string} photoUrl -  initial photo URL result from getURL method
-	* @param {string} placeID - 
+	* @param {string} placeID -
 	*/
 	savePhotoinLocalStorage: function(photoUrl, placeID) {
-		var keyName = placeID + "photo"
-		localStorage.setItem( keyName, photoUrl)
+		var keyName = placeID + "photo";
+		localStorage.setItem( keyName, photoUrl);
 	},
 	/**
 	* @description generates stylized names for buttons from initial category array
@@ -156,10 +155,10 @@ var Model = {
 		for (var i = 0; i < categories.length; i++) {
 			var capitalizedCategory = categories[i][0].toUpperCase() + categories[i].slice(1);
 			array.push(capitalizedCategory);
-		};
+		}
 		return array;
 	}
-}
+};
 /**
 * @description Google Map & Library API calls
 */
@@ -173,7 +172,7 @@ var MapFunc = {
 	* @description Called on successful google map script load, initiates coordinates, map, service, and ONE infoWindow
 	*/
 	init: function () {
-		this.coordinates = new google.maps.LatLng(38.031,-78.486)
+		this.coordinates = new google.maps.LatLng(38.031,-78.486);
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
@@ -192,25 +191,25 @@ var MapFunc = {
     		location: this.coordinates,
     		radius: 1000,
     		query: placeName
-    	}
+    	};
 		this.service.textSearch(request, function(results, status) {
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				MapFunc.getGoogleDetails(results[0].place_id, placeDataArray, category);
 	    	}
-    	})
+    	});
 	},
 	/**
 	* @description takes place ID from first google api call and requests detailed info. Both saves it in local storage and uses it to initiate new place obj
-	* @param {string} placeID   
-	* @param {array} placeDataArray 
-	* @param {string} category 
+	* @param {string} placeID
+	* @param {array} placeDataArray
+	* @param {string} category
 	*/
 	getGoogleDetails: function(placeID, placeDataArray, category) {
 		MapFunc.service.getDetails({placeId: placeID}, function(results, status) { //callback as an anonymous function
 			console.log("Result from google api request:" + status);
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				placeDataArray.push( new Place(results));
-				Model.saveInLocalStorage(results, category) 
+				Model.saveInLocalStorage(results, category);
   			}
 		});
 	},
@@ -220,7 +219,7 @@ var MapFunc = {
 	*/
 	setInfoWindow: function(marker) {
 		this.infoWindow.setContent(marker.infoWindowContent);
-		this.infoWindow.open(this.map, marker); 
+		this.infoWindow.open(this.map, marker);
 	},
 	/**
 	* @description Called by Place constructor, uses place properties to complete the info Window string
@@ -229,10 +228,10 @@ var MapFunc = {
 	setInfoWindowContent: function(place) {
 		place.marker.infoWindowContent = " <img src='" + place.photoUrl + "' class='infowindow-image' alt='place photo'>" +  "<h4 class='info-title'>" + place.name + "</h4>" + "<p>" + place.phone + "</p>" + "<span class='rating'>" + place.rating() + "</span>"  +    "<a href='" + place.website + "'> " + place.website + "</a>" ; //stored as property of marker for easy referenec at call time
 	}
-  }
+  };
 /**
 * @description Constructs each place, sets marker, and makes a wiki api call
-* @constructor 
+* @constructor
 * @param {obj} placeData -  either the google obj or very similar localStorage obj from earlier load
 */
 var Place = function(placeData) {
@@ -242,14 +241,14 @@ var Place = function(placeData) {
 	this.location = placeData.geometry.location;
 	this.rating = ko.observable(placeData.rating || 3.9);
 	this.photoUrl = Model.getPhotoUrl(this, placeData.photos);
-	this.typesArray = placeData.types; 
+	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,
 		animation: google.maps.Animation.DROP,
 		icon: 'img/top_picks.png' //this is only the initial value
-	})
+	});
 	this.wikiURL = ko.observable(''); //either silently fails and remains an empty string, or changes upon wiki callback
-	Model.getWikiUrl(this); 
+	Model.getWikiUrl(this);
 	this.reviewsArray = placeData.reviews;
 	this.phone = placeData.formatted_phone_number || "703-555-1234";
 	this.website = placeData.website || "No Website Given";
@@ -258,8 +257,8 @@ var Place = function(placeData) {
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
-	})
-}
+	});
+};
 
 /**
 * @description The View Model
@@ -275,11 +274,11 @@ var ViewModel = function() {
 
 	self.buttonArray = Model.makeButtonList();
 	/**
-	* @description Maintains current List as the desired array within the array of arrays 
+	* @description Maintains current List as the desired array within the array of arrays
 	*/
 	self.copy = ko.computed(function(){
-		self.currentList(self.arrayOfArrays()[self.currentIndex()]())
-	})
+		self.currentList(self.arrayOfArrays()[self.currentIndex()]());
+	});
 
 
 	self.currentTitle = ko.observable('Top Picks'); //bound to span above place results
@@ -293,13 +292,13 @@ var ViewModel = function() {
 
 	/**
 	* @description changes the current marker icon
-	* @returns {string} - the file path to the current marker icon 
+	* @returns {string} - the file path to the current marker icon
 	*/
 	self.markerIcon = ko.computed(function() {
-		return markerIconArray[self.currentIndex()]
-	})
+		return markerIconArray[self.currentIndex()];
+	});
 	/**
-	* @description filters results 
+	* @description filters results
 	* subscribes to: current Filter & categoryToShow
 	* @returns {array} - array of filtered place results
 	*/
@@ -307,17 +306,17 @@ var ViewModel = function() {
 	self.filteredPlaces = ko.computed(function() {
 		var filter = self.currentFilter().toLowerCase();
 		if(!filter && !self.categoryToShow()) {  //if there is nothing being typed in the filter AND no selcted category
-			return self.currentList()
+			return self.currentList();
 		} else if (filter) { //supercedes category section
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
 				return place.name.toLowerCase().startsWith(filter);      //returns true when letters match
-			})
+			});
 		} else {
 			return ko.utils.arrayFilter(self.currentList(), function(place) {
-				return place.typesArray.indexOf(self.categoryToShow()) != -1  //returns true when search category exists within types array
-			})
+				return place.typesArray.indexOf(self.categoryToShow()) != -1;  //returns true when search category exists within types array
+			});
 		}
-	})
+	});
 
 	/**
 	* @description Called on click of different Category Buttons
@@ -331,40 +330,40 @@ var ViewModel = function() {
 			self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
 		}
 
-		self.currentIndex(index); 
+		self.currentIndex(index);
 		self.currentTitle (self.buttonArray[index]);//changes span above results
 
-		if(this.length == 0) { //when the category's place array is empty
+		if(this.length === 0) { //when the category's place array is empty
 			var category = categories[index - 1];
 			Model.getData(category, Model[category]()); //initiate google search
 		}
 		self.setMarkerIcon(); //changes markers of currentList AFTER change
-	}
+	};
 	/**
 	* @description Removes marker from maps
 	*/
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setMap(null);
-		})
-	}
+		});
+	};
 	/**
 	* @description Changes the marker icon based on currentIndex
 	*/
 	self.setMarkerIcon = function() {
 		self.currentList().forEach(function(place) {
 			place.marker.setIcon(self.markerIcon());
-			console.log(self.markerIcon())
-		})
-	}
+			console.log(self.markerIcon());
+		});
+	};
 	/**
 	* @description Computes markers to be displayed
 	*/
 	self.currentMarkers = ko.computed ( function() {
 		self.clearMarkers();
 		self.filteredPlaces().forEach(function(place) {
-			place.marker.setMap(MapFunc.map)
-		})
+			place.marker.setMap(MapFunc.map);
+		});
 	});
 	/**
 	* @description On click of place Name, open InfoWindow
@@ -376,18 +375,18 @@ var ViewModel = function() {
 			marker.setAnimation(null);
 		}, 1400);
 		MapFunc.setInfoWindow(marker);
-	}
+	};
 	/**
 	* @description Generates the array bound to the additional filter categories
 	* @returns {array}  -  unique category values to use as additional filters
 	*/
 	self.uniqueCategories = ko.computed(function(){
-		var array = []
+		var array = [];
 		self.currentList().forEach(function(place){
 			array = array.concat(place.typesArray); //a long array containing repeats of type categories
-		})
-		return ko.utils.arrayGetDistinctValues(array)
-	})
+		});
+		return ko.utils.arrayGetDistinctValues(array);
+	});
 
 	/**
 	* @description Animation functions called by beforeRemove & afterRender listeners
@@ -396,21 +395,21 @@ var ViewModel = function() {
 	self.slideAway = function(element) {
 		$(element).filter('li').slideUp(function() {
 			$(element).remove();
-		})
-	},
+		});
+	};
 	self.fade = function(element) {
 		$(element).hide().fadeIn();
-	}
-}
+	};
+};
 /**
 * @description Custom binding (adapted from knockout animation example)
 * @param {DOM element} element -  DOM element to animate (and remove)
-* @param {boolean} valueAccessor -   
+* @param {boolean} valueAccessor -
 */
 ko.bindingHandlers.fadeIn = {
     init: function(element, valueAccessor) {
         var value = valueAccessor();
-        $(element).toggle(ko.unwrap(value)); 
+        $(element).toggle(ko.unwrap(value));
     },
     update: function(element, valueAccessor) {
         var value = valueAccessor();//either slide down or slide Up based on value

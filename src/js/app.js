@@ -18,6 +18,7 @@ var Model = {
 			var categoryArrayName = category + "PlaceArray";
 			Model[category] = ko.observableArray(); // will hold array of place names from foursquare API call
 			Model[categoryArrayName] = ko.observableArray(); //will hold array of place objects
+			MapFunc[category + 'Bounds'] = new google.maps.LatLngBounds(); //will hold map bounds for each category
 			vm.arrayOfArrays.push(Model[categoryArrayName]); //pushes array to ViewModel 'mother array' so vm can easily access data
 			if(Model[category]().length === 0) {  //only make Foursquare call when array holding foursquare results is empty
 				Model.getFoursquareList(category);
@@ -46,8 +47,8 @@ var Model = {
 	* @param {string} category - Name of the category
 	*/
 	getFoursquareList: function(placeCategory) {
-		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20150826&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit;
 		var category = placeCategory;
+		var foursquareAPI = 'https://api.foursquare.com/v2/venues/explore?client_id=EVYYCGOOZ5MFLVODPTDVDSDZEFQXD4TBNDIGOYTWOT0SQZHJ&client_secret=EWZJ2VJM5HRURCEVMSXQ3LEVVPL1PZXND5RHNAFNOYRTH3JS&v=20150826&ll=38.03,-78.49&section=' + category + '&limit=' + Model.resultsLimit + '&radius=2000';
 		$.getJSON(foursquareAPI, function(data) {
 			for (var i = 0; i < data.response.groups[0].items.length; i++) {
 				var resultName = data.response.groups[0].items[i].venue.name;
@@ -217,14 +218,6 @@ var MapFunc = {
 		});
 	},
 	/**
-	* @description Opens InfoWindow; Called by Marker click listener And click on sidebar place name
-	* @param {obj} marker -  the google marker object
-	*/
-	setInfoWindow: function(marker) {
-		this.infoWindow.setContent(marker.infoWindowContent);
-		this.infoWindow.open(this.map, marker);
-	},
-	/**
 	* @description Called by Place constructor, uses place properties to complete the info Window string
 	* @param {obj} place -  the place obj
 	*/
@@ -242,8 +235,8 @@ var Place = function(placeData) {
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
 	this.location = placeData.geometry.location;
-	this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat(); // lat() functiion lost upon stringify; || to handle localStorage retreival
-	this.lng = placeData.geometry.location.lng || placeData.geometry.location.lng();
+	this.lat = typeof placeData.geometry.location.lat === 'function' ? placeData.geometry.location.lat() : placeData.geometry.location.lat; // lat() functiion lost upon stringify; || to handle localStorage retreival
+	this.lng = typeof placeData.geometry.location.lng ==='function' ? placeData.geometry.location.lng() : placeData.geometry.location.lng;
 	this.rating = ko.observable(placeData.rating || 3.9);
 	this.photoUrl = Model.getPhotoUrl(this, placeData.photos);
 	this.typesArray = placeData.types;
@@ -263,9 +256,16 @@ var Place = function(placeData) {
 	this.coordinates = new google.maps.LatLng(this.lat, this.lng); //new obj needed for localStorage case; otherwise this.location works
 	MapFunc.bounds.extend(this.coordinates);
 	MapFunc.map.fitBounds(MapFunc.bounds);
-	google.maps.event.addListener(this.marker, 'click', function(e) {
-		MapFunc.setInfoWindow( this );
+	console.log(MapFunc.bounds)
 
+	google.maps.event.addListener(this.marker, 'click', function(e) {
+		MapFunc.infoWindow.setContent(this.infoWindowContent);
+		MapFunc.infoWindow.open(MapFunc.map, this);
+		MapFunc.map.panTo(this.getPosition())
+		this.setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function( marker ){
+			marker.setAnimation(null);
+		}, 1400, this);
 	});
 };
 
@@ -332,6 +332,7 @@ var ViewModel = function() {
 	self.setCurrentList = function(index) {
 		self.categoryToShow(''); //reset category filter
 		self.currentFilter(''); //reset text filter value
+		MapFunc.bounds = new google.maps.LatLngBounds(null); //resets bounds to map zooms on new markers
 
 		if(self.currentIndex() != index) {
 			self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
@@ -377,12 +378,8 @@ var ViewModel = function() {
 	* @description On click of place Name, open InfoWindow
 	*/
 	self.setFocus = function() {
-		var marker = this.marker;
-		marker.setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function(){
-			marker.setAnimation(null);
-		}, 1400);
-		MapFunc.setInfoWindow(marker);
+		var marker = this.marker; //this = place obj
+		google.maps.event.trigger(marker, 'click');
 	};
 	/**
 	* @description Generates the array bound to the additional filter categories

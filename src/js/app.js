@@ -14,22 +14,16 @@ var Model = {
 	* @description Called on successful map load, sets up data structured e names
 	*/
 	init: function() {
-		var self = this;
-
 		categories.forEach(function(category){
 			var categoryArrayName = category + "PlaceArray";
-			self[category] = ko.observableArray(); // will hold array of place names from foursquare API call
-			self[categoryArrayName] = ko.observableArray(); //will hold array of place objects
-			vm.arrayOfArrays.push(self[categoryArrayName]); //pushes array to ViewModel 'mother array' so vm can easily access data
-			if(self[category]().length === 0) {  //only make Foursquare call when array holding foursquare results is empty
-				self.getFoursquareList(category);
+			Model[category] = ko.observableArray(); // will hold array of place names from foursquare API call
+			Model[categoryArrayName] = ko.observableArray(); //will hold array of place objects
+			vm.arrayOfArrays.push(Model[categoryArrayName]); //pushes array to ViewModel 'mother array' so vm can easily access data
+			if(Model[category]().length === 0) {  //only make Foursquare call when array holding foursquare results is empty
+				Model.getFoursquareList(category);
 			}
-
 		});
-
-		this.getData('topPicks', topPicks); //makes call to get Data for Top Picks for initial page load
-
-
+		Model.getData('topPicks', topPicks); //makes call to get Data for Top Picks for initial page load
 	},
 	/**
 	* @description Makes call to get data from localStorage if available, otherwise makes call to get Google data
@@ -61,7 +55,10 @@ var Model = {
 			}
 		}).fail(function() {
 			Model[category](["Public Fish & Oyster", "Continental Divide", "Albemarle Baking Company", "The Whiskey Jar", "Revolutionary Soup"]);
-			alert("Foursquare Issue... Oh No! Showing you the results from 1/22/2016. Try reloading in a minute");
+			if (!Model.hasReceivedError) { //User only receives error once, not for each category
+				alert("Foursquare Issue... Oh No! Showing you the results from 1/22/2016. Try reloading in a minute");
+			}
+			Model.hasReceivedError = true;
 		});
 	},
 	/**
@@ -113,7 +110,7 @@ var Model = {
 			dataType: "jsonp",
 			success: function(data) {
 				place.wikiURL(data[3][0]);
-			}
+			} // on fail, place.wikiURL silently remains the ko.observable empty string and is omitted from inclusion in DOM
 		});
 	},
 	/**
@@ -176,8 +173,10 @@ var MapFunc = {
 		this.map = new google.maps.Map(document.querySelector('#map'), this.mapOptions);
 		this.service = new google.maps.places.PlacesService(this.map);
 		this.infoWindow = new google.maps.InfoWindow();
+		this.bounds = new google.maps.LatLngBounds();
 		window.addEventListener('resize', function(e) {
   			MapFunc.map.setCenter(MapFunc.coordinates);
+  			MapFunc.map.fitBounds(MapFunc.bounds)
 		});
 	},
 	/**
@@ -211,10 +210,10 @@ var MapFunc = {
 				placeDataArray.push( new Place(results));
 				Model.saveInLocalStorage(results, category);
   			}
-  			$('.my-btn').prop('disabled', true) //So requests to Google doesn't go over 10 query/second limit
+  			$('.my-btn').prop('disabled', true); //So requests to Google doesn't go over 10 query/second limit
 			setTimeout(function(){
-        		$('.my-btn').prop('disabled', false)
-    		}, 3000)
+        		$('.my-btn').prop('disabled', false);
+    		}, 3000);
 		});
 	},
 	/**
@@ -257,8 +256,10 @@ var Place = function(placeData) {
 	this.phone = placeData.formatted_phone_number || "703-555-1234";
 	this.website = placeData.website;
 	this.showReviews = ko.observable(false); //whether or not to display the reviews of this place
-	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
 
+	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
+	MapFunc.bounds.extend(placeData.geometry.location);
+	MapFunc.map.fitBounds(MapFunc.bounds);
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
 	});
@@ -409,8 +410,8 @@ var ViewModel = function() {
 	* @param {array} filteredNames -  an array of the place names of the current list
 	*/
 	$("#autocomplete").autocomplete({
-	  		source: topPicks
-		});
+	  	source: topPicks
+	});
 
 	self.filteredNames = ko.computed(function() {
 		var array = [];

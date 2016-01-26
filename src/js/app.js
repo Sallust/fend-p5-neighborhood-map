@@ -176,7 +176,7 @@ var MapFunc = {
 		this.bounds = new google.maps.LatLngBounds();
 		window.addEventListener('resize', function(e) {
   			MapFunc.map.setCenter(MapFunc.coordinates);
-  			MapFunc.map.fitBounds(MapFunc.bounds)
+  			MapFunc.map.fitBounds(MapFunc.bounds);
 		});
 	},
 	/**
@@ -242,6 +242,8 @@ var Place = function(placeData) {
 	this.name = placeData.name;
 	this.address = placeData.formatted_address;
 	this.location = placeData.geometry.location;
+	this.lat = placeData.geometry.location.lat || placeData.geometry.location.lat(); // lat() functiion lost upon stringify; || to handle localStorage retreival
+	this.lng = placeData.geometry.location.lng || placeData.geometry.location.lng();
 	this.rating = ko.observable(placeData.rating || 3.9);
 	this.photoUrl = Model.getPhotoUrl(this, placeData.photos);
 	this.typesArray = placeData.types;
@@ -258,10 +260,12 @@ var Place = function(placeData) {
 	this.showReviews = ko.observable(false); //whether or not to display the reviews of this place
 
 	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
-	MapFunc.bounds.extend(placeData.geometry.location);
+	this.coordinates = new google.maps.LatLng(this.lat, this.lng); //new obj needed for localStorage case; otherwise this.location works
+	MapFunc.bounds.extend(this.coordinates);
 	MapFunc.map.fitBounds(MapFunc.bounds);
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.setInfoWindow( this );
+
 	});
 };
 

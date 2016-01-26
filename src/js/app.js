@@ -412,7 +412,10 @@ var ViewModel = function() {
 	* @param {array} filteredNames -  an array of the place names of the current list
 	*/
 	$("#autocomplete").autocomplete({
-	  	source: topPicks
+	  	source: topPicks,
+	  	select: function( event, ui) {
+	  		self.currentFilter (ui.item.label);
+	  	}
 	});
 
 	self.filteredNames = ko.computed(function() {

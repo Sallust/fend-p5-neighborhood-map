@@ -47,7 +47,7 @@ body {
 	z-index:1001 !important
 }
 
-#sidebar-wrapper {
+#sidebar-wrapper { /* I'm piggy-backing an ID needed for toggle feature */
 	background: #cfd8dc;
 	direction: rtl;
 	box-shadow: 4px 0 6px -3px rgba(0, 0, 0, 0.4);

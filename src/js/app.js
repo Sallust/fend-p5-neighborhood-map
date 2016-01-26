@@ -242,6 +242,7 @@ var Place = function(placeData) {
 	this.typesArray = placeData.types;
 	this.marker = new google.maps.Marker({
 		position: placeData.geometry.location,
+		map: MapFunc.map,
 		animation: google.maps.Animation.DROP,
 		icon: 'img/top_picks.png' //this is only the initial value
 	});
@@ -354,7 +355,7 @@ var ViewModel = function() {
 	*/
 	self.clearMarkers = function() {
 		self.currentList().forEach(function(place) {
-			place.marker.setMap(null);
+			place.marker.setVisible(false);
 		});
 	};
 	/**
@@ -371,7 +372,7 @@ var ViewModel = function() {
 	self.currentMarkers = ko.computed ( function() {
 		self.clearMarkers();
 		self.filteredPlaces().forEach(function(place) {
-			place.marker.setMap(MapFunc.map);
+			place.marker.setVisible(true);
 		});
 	});
 	/**

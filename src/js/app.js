@@ -257,7 +257,6 @@ var Place = function(placeData) {
 	this.coordinates = new google.maps.LatLng(this.lat, this.lng); //new obj needed for localStorage case; otherwise this.location works
 	MapFunc.bounds.extend(this.coordinates);
 	MapFunc.map.fitBounds(MapFunc.bounds);
-	console.log(MapFunc.bounds)
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.infoWindow.setContent(this.infoWindowContent);
@@ -445,3 +444,13 @@ ko.bindingHandlers.fadeIn = {
 
 var vm = new ViewModel();
 ko.applyBindings(vm);
+
+function googleSuccess() {
+    MapFunc.init();
+    Model.init();
+}
+
+function googleFail() {
+    alert("Computer says No! Google Maps didn't load properly. Try reloading the page in a little bit. Here's a picture of a kitten to make you feel better")
+    $('#map').append('<img src="http://lorempixel.com/500/800/cats" style="height:100%;">')
+}

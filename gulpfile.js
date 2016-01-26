@@ -57,3 +57,5 @@ gulp.task('watch', function() {
     gulp.watch('src/index.html', ['optimize-stack']);
 });
 
+gulp.task('default', ['lint', 'optimize-stack', 'watch']);
+

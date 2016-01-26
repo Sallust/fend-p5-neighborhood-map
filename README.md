@@ -1,40 +1,45 @@
-Neighborhood Map Project
+#Neighborhood Map Project
 
-Navigate to dist folder and open index.html to see my project 5 neighborhood Map Project.
-All dependencies are areadly included.
+* Navigate to dist folder and open index.html to see my project 5 neighborhood Map Project.
 
-The non-minified version with comments and documentation is in the src folder.
+* All dependencies are areadly included.
 
-One list of top picks was initialy provided.
+* To run gulp build process fist run `npm install` in root folder (assuming npm is already installed globaly)
 
-Remaining place names are from the foursquare API.
+* Then run gulp by running gulp `gulp` from cmd line in root folder
 
-Click category buttons at the top to navagate through these categories.
+* The non-minified version with comments and documentation is in the src folder.
 
-Place data is provided by google maps & a call to the wiki API provides the wiki link when available.
+* One list of top picks was initialy provided.
 
-Brief disabled period on buttons is to prevent an error from google due to exceeding 10 query/second.
+* Remaining place names are from the foursquare API.
 
-Other fallbacks incorporated, notifying user if google fails to provide info.
+* Click category buttons at the top to navagate through these categories.
 
-An additional search filter by categories is available.
+* Place data is provided by google maps & a call to the wiki API provides the wiki link when available.
 
-It is created from the array of place type provided with each place.
+* Brief disabled period on buttons is to prevent an error from google due to exceeding 10 query/second.
 
-I used gulp to minifify and lint the src code. The production code is in the dist file.
+* Other fallbacks incorporated, notifying user if google fails to provide info.
 
-App stores place data in local storage.
+* An additional search filter by categories is available.
 
-On open, checks to get localStorage data when available (by individual category)
+* It is created from the array of place type provided with each place.
 
-Markers vary by individual category.
+* I used gulp to minifify and lint the src code. The production code is in the dist file.
 
-Jquery autocomplete allows for autocomplete function
+* App stores place data in local storage.
 
-Used bootstrap for styling and collapsing nav.
+* On open, checks to get localStorage data when available (by individual category)
 
-Application components render responsive to size of viewport.
+* Markers vary by individual category.
 
-Application loads from 3 arrays; category names, top Picks, and marker icon locations.
+* Jquery autocomplete allows for autocomplete function
 
-App is hopefully easily extendable then.
+* Used bootstrap for styling and collapsing nav.
+
+* Application components render responsive to size of viewport.
+
+* Application loads from 3 arrays; category names, top Picks, and marker icon locations.
+
+* App is hopefully easily extendable then.

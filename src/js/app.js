@@ -260,7 +260,7 @@ var Place = function(placeData) {
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.infoWindow.setContent(this.infoWindowContent);
 		MapFunc.infoWindow.open(MapFunc.map, this);
-		MapFunc.map.panTo(this.getPosition())
+		MapFunc.map.panTo(this.getPosition());
 		this.setAnimation(google.maps.Animation.BOUNCE);
 		setTimeout(function( marker ) {
 			marker.setAnimation(null);
@@ -463,10 +463,10 @@ function googleSuccess() {
 }
 
 function googleFail() {
-    alert("Computer says No! Google Maps didn't load properly. Try reloading the page in a little bit. Here's a picture of a kitten to make you feel better")
-    $('#map').append('<img src="http://lorempixel.com/500/800/cats" style="height:100%;">')
+    alert("Computer says No! Google Maps didn't load properly. Try reloading the page in a little bit. Here's a picture of a kitten to make you feel better");
+    $('#map').append('<img src="http://lorempixel.com/500/800/cats" style="height:100%;">');
 }
 
 $('#small-list').click(function() {
 	$('.collapse').collapse('hide');
-})
+});

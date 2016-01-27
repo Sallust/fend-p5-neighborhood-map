@@ -18,7 +18,6 @@ var Model = {
 			var categoryArrayName = category + "PlaceArray";
 			Model[category] = ko.observableArray(); // will hold array of place names from foursquare API call
 			Model[categoryArrayName] = ko.observableArray(); //will hold array of place objects
-			MapFunc[category + 'Bounds'] = new google.maps.LatLngBounds(); //will hold map bounds for each category
 			vm.arrayOfArrays.push(Model[categoryArrayName]); //pushes array to ViewModel 'mother array' so vm can easily access data
 			if(Model[category]().length === 0) {  //only make Foursquare call when array holding foursquare results is empty
 				Model.getFoursquareList(category);
@@ -255,8 +254,6 @@ var Place = function(placeData) {
 
 	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
 	this.coordinates = new google.maps.LatLng(this.lat, this.lng); //new obj needed for localStorage case; otherwise this.location works
-	MapFunc.bounds.extend(this.coordinates);
-	MapFunc.map.fitBounds(MapFunc.bounds);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.infoWindow.setContent(this.infoWindowContent);
@@ -332,7 +329,6 @@ var ViewModel = function() {
 	self.setCurrentList = function(index) {
 		self.categoryToShow(''); //reset category filter
 		self.currentFilter(''); //reset text filter value
-		MapFunc.bounds = new google.maps.LatLngBounds(null); //resets bounds to map zooms on new markers
 
 		if(self.currentIndex() != index) {
 			self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
@@ -342,13 +338,18 @@ var ViewModel = function() {
 		self.currentTitle (self.buttonArray[index]);//changes span above results
 
 		if(this.length === 0) { //when the category's place array is empty
+
 			var category = categories[index - 1];
 			Model.getData(category, Model[category]()); //initiate google search
 		}
 		self.setMarkerIcon(); //changes markers of currentList AFTER change
 
+		MapFunc.bounds = new google.maps.LatLngBounds() ; //resets bounds so map zooms on new markers
+		self.currentList().forEach(function(place) {
+			MapFunc.bounds.extend(place.coordinates);
+			MapFunc.map.fitBounds(MapFunc.bounds);
+		});
 	};
-
 	/**
 	* @description Removes marker from maps
 	*/

@@ -105,12 +105,17 @@ var Model = {
 		var place = placeObj;
 		var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&search=' + place.name +'&format=json';
 
+		var wikiRequestTimeout = setTimeout(function(place) {
+        	place.wikiURL('');
+    	}, 5000, place)
+
 		$.ajax({
 			url: wikiAPI,
 			dataType: "jsonp",
 			success: function(data) {
 				place.wikiURL(data[3][0]);
-			} // on fail, place.wikiURL silently remains the ko.observable empty string and is omitted from inclusion in DOM
+				clearTimeout(wikiRequestTimeout);
+			}
 		});
 	},
 	/**
@@ -383,8 +388,8 @@ var ViewModel = function() {
 		MapFunc.bounds = new google.maps.LatLngBounds();
 		self.currentList().forEach(function(place) {
 			MapFunc.bounds.extend(place.coordinates);
-			MapFunc.map.fitBounds(MapFunc.bounds);
 		});
+		MapFunc.map.fitBounds(MapFunc.bounds);
 	};
 	/**
 	* @description On click of place Name, open InfoWindow

@@ -28,10 +28,14 @@
                         <button data-bind="click: $parent.setCurrentList.bind($data, $index()), text: $parent.buttonArray[$index()]" class="btn btn-success my-btn">CategoryButton</button>
                     </div>
                     <div class="radio-divider"></div>
-                    <h3 class="radio-heading">Filter by additional categories below!</h3>
-                    <div id="radio-button-bar" data-bind="foreach: uniqueCategories">
-                        <span class="radio-button" data-bind="text: $data">I'm text</span>
-                        <input type="radio" name="categoryGroup" data-bind="checked: $parent.categoryToShow, attr: {value: $data}" id="radio" >
+                    <div class="small-div">
+                        <input type="text" placeholder="Type here to Filter by Name" class="form-control my-input" data-bind="textInput: currentFilter">
+                        <div data-bind="foreach: filteredPlaces" id="small-list">
+                            <div class="row">
+                                <img src="" class="small-img-div" alt="place image" data-bind="attr: {src: photoUrl}">
+                                <a data-bind="text: name, click: $parent.setFocus, css: { longString: name.length > 21 }" class="small-place-name" href="#"></a><span data-bind="text: rating(), style: { background: rating() < 4.5 ? '#0D47A1' : '#43A047'}" class='small-rating'></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

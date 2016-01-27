@@ -254,13 +254,15 @@ var Place = function(placeData) {
 
 	MapFunc.setInfoWindowContent(this); //passes place obj to set infowindow content
 	this.coordinates = new google.maps.LatLng(this.lat, this.lng); //new obj needed for localStorage case; otherwise this.location works
+	MapFunc.bounds.extend(this.coordinates);
+	MapFunc.map.fitBounds(MapFunc.bounds);
 
 	google.maps.event.addListener(this.marker, 'click', function(e) {
 		MapFunc.infoWindow.setContent(this.infoWindowContent);
 		MapFunc.infoWindow.open(MapFunc.map, this);
 		MapFunc.map.panTo(this.getPosition())
 		this.setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function( marker ){
+		setTimeout(function( marker ) {
 			marker.setAnimation(null);
 		}, 1400, this);
 	});
@@ -327,8 +329,11 @@ var ViewModel = function() {
 	* @param {string} index-  called in a foreach loop, the index of the button clicked
 	*/
 	self.setCurrentList = function(index) {
+		$('.collapse').collapse('hide'); //hides dropdown navbar on click
+
 		self.categoryToShow(''); //reset category filter
 		self.currentFilter(''); //reset text filter value
+		MapFunc.infoWindow.close();
 
 		if(self.currentIndex() != index) {
 			self.clearMarkers(); //clear markers of currentList BEFORE currentList changes
@@ -344,11 +349,7 @@ var ViewModel = function() {
 		}
 		self.setMarkerIcon(); //changes markers of currentList AFTER change
 
-		MapFunc.bounds = new google.maps.LatLngBounds() ; //resets bounds so map zooms on new markers
-		self.currentList().forEach(function(place) {
-			MapFunc.bounds.extend(place.coordinates);
-			MapFunc.map.fitBounds(MapFunc.bounds);
-		});
+		self.setBounds();
 	};
 	/**
 	* @description Removes marker from maps
@@ -375,6 +376,16 @@ var ViewModel = function() {
 			place.marker.setVisible(true);
 		});
 	});
+	/**
+	* @description Resets bounds so map zooms on new markers
+	*/
+	self.setBounds = function() {
+		MapFunc.bounds = new google.maps.LatLngBounds();
+		self.currentList().forEach(function(place) {
+			MapFunc.bounds.extend(place.coordinates);
+			MapFunc.map.fitBounds(MapFunc.bounds);
+		});
+	};
 	/**
 	* @description On click of place Name, open InfoWindow
 	*/
@@ -455,3 +466,7 @@ function googleFail() {
     alert("Computer says No! Google Maps didn't load properly. Try reloading the page in a little bit. Here's a picture of a kitten to make you feel better")
     $('#map').append('<img src="http://lorempixel.com/500/800/cats" style="height:100%;">')
 }
+
+$('#small-list').click(function() {
+	$('.collapse').collapse('hide');
+})
